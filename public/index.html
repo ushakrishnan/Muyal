@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muyal AI Agent - Web Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message.user .message-bubble {
+            background: #667eea;
+            color: white;
+            margin-left: 20px;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            margin-right: 20px;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #messageInput:focus {
+            border-color: #667eea;
+        }
+
+        #sendButton {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        #sendButton:hover {
+            background: #5a6fd8;
+        }
+
+        #sendButton:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 18px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 18px;
+            margin-right: 20px;
+            max-width: 70%;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .clear-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .clear-button:hover {
+            background: #ff5252;
+        }
+
+        .suggestions-list, .actions-list {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggestion-button, .action-button {
+            background: #f0f0f0;
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .suggestion-button:hover, .action-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .message-bubble.suggestions, .message-bubble.actions {
+            background: #f8f9ff;
+            border: 1px solid #e0e6ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            🤖 Muyal AI Agent
+            <button class="clear-button" onclick="clearConversation()">Clear Chat</button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-bubble">
+                    Hi there! I'm Muyal, your AI agent. How can I help you today?
+                    <div class="message-time" id="welcomeTime"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <div class="input-container">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Type your message here..." 
+                    autocomplete="off"
+                />
+                <button id="sendButton" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate a unique conversation ID for this session
+        const conversationId = 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        
+        // Set welcome message time
+        document.getElementById('welcomeTime').textContent = new Date().toLocaleTimeString();
+
+        // Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Clear input and disable send button
+            input.value = '';
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                // Send message to API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationId: conversationId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || data.message || 'Unknown error');
+                }
+
+                // Add bot response to chat
+                addMessage(data.response, 'bot');
+
+                // Add suggestions if available
+                if (data.suggestions && data.suggestions.length > 0) {
+                    addSuggestions(data.suggestions);
+                }
+
+                // Add actions if available
+                if (data.actions && data.actions.length > 0) {
+                    addActions(data.actions);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            } finally {
+                // Hide typing indicator and re-enable send button
+                hideTypingIndicator();
+                sendButton.disabled = false;
+                input.focus();
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.textContent = text;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString();
+            
+            bubbleDiv.appendChild(timeDiv);
+            messageDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addSuggestions(suggestions) {
+            if (!suggestions || suggestions.length === 0) return;
+
+            const messagesContainer = document.getElementById('chatMessages');
+            const suggestionsDiv = document.createElement('div');
+            suggestionsDiv.className = 'message bot';
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble suggestions';
+            bubbleDiv.innerHTML = '<strong>💡 Suggestions:</strong>';
+            
+            const suggestionsList = document.createElement('div');
+            suggestionsList.className = 'suggestions-list';
+            
+            suggestions.forEach((suggestion, index) => {
+                const suggestionButton = document.createElement('button');
+                suggestionButton.className = 'suggestion-button';
+                suggestionButton.textContent = suggestion;
+                suggestionButton.onclick = () => {
+                    document.getElementById('messageInput').value = suggestion;
+                    sendMessage();
+                };
+                suggestionsList.appendChild(suggestionButton);
+            });
+            
+            bubbleDiv.appendChild(suggestionsList);
+            suggestionsDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(suggestionsDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addActions(actions) {
+            if (!actions || actions.length === 0) return;
+
+            const messagesContainer = document.getElementById('chatMessages');
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'message bot';
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble actions';
+            bubbleDiv.innerHTML = '<strong>🔗 Actions:</strong>';
+            
+            const actionsList = document.createElement('div');
+            actionsList.className = 'actions-list';
+            
+            actions.forEach(action => {
+                const actionButton = document.createElement('button');
+                actionButton.className = 'action-button';
+                actionButton.textContent = action.label;
+                actionButton.onclick = () => {
+                    if (action.type === 'link') {
+                        window.open(action.value, '_blank');
+                    } else if (action.type === 'quick_reply') {
+                        document.getElementById('messageInput').value = action.value;
+                        sendMessage();
+                    }
+                };
+                actionsList.appendChild(actionButton);
+            });
+            
+            bubbleDiv.appendChild(actionsList);
+            actionsDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(actionsDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            const messagesContainer = document.getElementById('chatMessages');
+            indicator.style.display = 'block';
+            messagesContainer.appendChild(indicator);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.style.display = 'none';
+        }
+
+        async function clearConversation() {
+            if (confirm('Are you sure you want to clear the conversation?')) {
+                try {
+                    await fetch(`/api/conversation/${conversationId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    // Clear messages
+                    const messagesContainer = document.getElementById('chatMessages');
+                    messagesContainer.innerHTML = `
+                        <div class="message bot">
+                            <div class="message-bubble">
+                                Hi there! I'm Muyal, your AI agent. How can I help you today?
+                                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error clearing conversation:', error);
+                }
+            }
+        }
+
+        // Focus on input when page loads
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+    "name": "muyal",
+    "version": "1.0.0",
+    "msteams": {
+        "teamsAppId": null
+    },
+    "description": "Unified multi-platform AI agent for Microsoft 365 and web - supports 6 AI providers with observability",
+    "author": "Muyal AI Agent Contributors",
+    "license": "MIT",
+    "main": "./lib/src/index.js",
+    "scripts": {
+        "dev:teamsfx:playground": "npm run dev",
+        "dev:teamsfx:launch-playground": "npx --prefix devTools/playground teamsapptester start",
+        "start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-muyal.ps1",
+        "start:muyal": "powershell -ExecutionPolicy Bypass -File ./scripts/start-muyal.ps1",
+        "start:muyal:verbose": "powershell -ExecutionPolicy Bypass -File ./scripts/start-muyal.ps1 -Verbose",
+        "start:muyal:skip-cleanup": "powershell -ExecutionPolicy Bypass -File ./scripts/start-muyal.ps1 -SkipCleanup",
+        "start:muyal:verbose-skip": "powershell -ExecutionPolicy Bypass -File ./scripts/start-muyal.ps1 -Verbose -SkipCleanup",
+        "start:muyal-simple": "scripts/start-muyal.bat",
+        "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
+        "build": "tsc --build",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "test-config": "node -r dotenv/config -e \"const config = require('./lib/src/config.js').default; console.log('✅ Configuration loaded successfully'); console.log('Azure OpenAI Endpoint:', config.azureOpenAI.endpoint); console.log('API Version:', config.azureOpenAI.apiVersion);\"",
+        "watch": "nodemon --exec \"npm run start\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/your-username/Muyal.git"
+    },
+    "dependencies": {
+        "@azure/identity": "^4.8.0",
+        "@azure/openai": "^2.0.0",
+        "@microsoft/agents-hosting-express": "^1.0.0",
+        "dotenv": "^17.2.3",
+        "openai": "^4.94.0",
+        "weave": "^0.9.3"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.0.0",
+        "env-cmd": "^10.1.0",
+        "nodemon": "^3.1.10",
+        "shx": "^0.3.3",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
+    }
+}

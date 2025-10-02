@@ -1,0 +1,7 @@
+/* External CSS for API documentation page */
+
+/* Test form styling */
+.test-form input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}

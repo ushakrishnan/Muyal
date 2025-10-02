@@ -1,0 +1,85 @@
+# ===================================================================
+# Muyal AI Agent - Git Ignore Rules
+# ===================================================================
+# This file prevents sensitive information from being committed to GitHub
+# ===================================================================
+
+# -------------------------------------------------------------------
+# SECURITY: Environment & Configuration Files (NEVER COMMIT)
+# -------------------------------------------------------------------
+.env
+.env.local
+.env.production
+.env.staging
+.localConfigs*
+*.user
+.notification.*.json
+
+# Legacy TeamsFx files (from cleanup)
+env/
+.localConfigs.playground.backup
+
+# -------------------------------------------------------------------
+# Dependencies & Build Artifacts
+# -------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lib/
+dist/
+build/
+
+# -------------------------------------------------------------------
+# TeamsFx & Microsoft 365 Generated Files
+# -------------------------------------------------------------------
+appPackage/build/
+.deployment
+devTools/
+
+# -------------------------------------------------------------------
+# Development Tools & IDE
+# -------------------------------------------------------------------
+.vscode/settings.json
+.vscode/launch.json
+*.log
+.DS_Store
+Thumbs.db
+
+# -------------------------------------------------------------------
+# Runtime & Temporary Files
+# -------------------------------------------------------------------
+*.pid
+*.seed
+*.pid.lock
+.coverage/
+.nyc_output/
+.cache/
+temp/
+tmp/
+
+# -------------------------------------------------------------------
+# Azure & Deployment
+# -------------------------------------------------------------------
+*.azurewebsites.net
+.azure/
+azurite_db*
+
+# -------------------------------------------------------------------
+# Backup Files
+# -------------------------------------------------------------------
+*.bak
+*.backup
+*.old
+*~
+
+# -------------------------------------------------------------------
+# OS Generated Files
+# -------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
