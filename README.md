@@ -135,23 +135,6 @@ Plus, "Muyal" sounds way cooler than "GenericAIBot2024" and definitely more prof
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/ushakrishnan/Muyal/blob/master/LICENSE) file for details.
 
-#  Muyal Documentation
-
-| Document | Purpose | When to Use |
-|----------|---------|-------------|
-| **[SETUP_AND_USAGE.md](SETUP_AND_USAGE.md)** | Installation, configuration, AI providers | Getting started, changing providers |
-| **[CAPABILITIES.md](CAPABILITIES.md)** | Functions, MCP integration, examples | Understanding what works now |
-| **[ARCHITECTURE.md](ARCHITECTURE.md)** | System design, knowledge sources | Technical understanding, extending |
-| **[MCP_A2A_INTEGRATION.md](MCP_A2A_INTEGRATION.md)** | Protocol details, agent networks | Building integrations |
-| **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | Common issues and solutions | When things don't work |
-
-## Start Here
-
-1. **First time?** → [SETUP_AND_USAGE.md](SETUP_AND_USAGE.md)
-2. **Want to see what it can do?** → [CAPABILITIES.md](CAPABILITIES.md)
-3. **Building extensions?** → [ARCHITECTURE.md](ARCHITECTURE.md)
-4. **Problems?** → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-
 ##  Support
 
 *  Check the [Setup Guide](docs/SETUP_AND_USAGE.md) for installation help

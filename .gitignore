@@ -65,6 +65,9 @@ data/contexts/
 conversations/
 *.conversation.json
 
+# Release planning (internal use only)
+docs/RELEASES.md
+
 # -------------------------------------------------------------------
 # Azure & Deployment
 # -------------------------------------------------------------------
