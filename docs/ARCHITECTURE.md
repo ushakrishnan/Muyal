@@ -1,8 +1,8 @@
-# 🏗️ Muyal AI Agent - Unified Architecture
+# 🏗️ Muyal Custom Engine Agent (CEA) - Architecture
 
-## System Architecture
+## Custom Engine Agent (CEA) Pattern
 
-Muyal uses a **unified conversation handler** with **modular platform adapters** and **multi-AI provider support**. The architecture eliminates complexity while providing clean separation of concerns and easy extensibility.
+Muyal implements the **Custom Engine Agent (CEA)** pattern using the **Microsoft 365 Agents SDK**. This architecture allows you to integrate your existing multi-agent AI application into Microsoft 365 Copilot without adding extra orchestration layers.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -313,6 +313,59 @@ src/services/observability/helicone-provider.ts
 src/services/analytics/advanced-metrics.ts
 src/services/analytics/cost-optimization.ts
 ```
+
+## 📁 Knowledge Sources Architecture
+
+Knowledge sources provide automatic intelligence enhancement through modular data integration.
+
+### File Organization
+```
+src/core/knowledge-sources/
+├── index.ts                   # Central export point
+├── employee-knowledge.ts      # Employee database integration
+├── company-knowledge.ts       # Company policies & information  
+├── weather-knowledge.ts       # Weather data & forecasts
+├── system-knowledge.ts        # Agent capabilities & help
+└── template-knowledge.ts      # Template for new sources
+```
+
+### Knowledge Source Interface
+```typescript
+interface KnowledgeSource {
+  name: string;
+  description: string;
+  priority: number;              // 90-100: Critical, 70-89: Important, 50-69: Helpful
+  isRelevant(message: string): boolean;
+  getContext(message: string): Promise<string>;
+  getSuggestions?(): string[];
+}
+```
+
+### Automatic Enhancement Process
+1. **Message Analysis**: Incoming messages analyzed for relevant keywords
+2. **Source Selection**: Appropriate knowledge sources called based on relevance  
+3. **Context Injection**: Retrieved data seamlessly injected into AI prompt
+4. **Enhanced Response**: AI generates response with rich contextual information
+
+### Priority System
+- **90-100**: Critical business data (employee records, financial data)
+- **70-89**: Important organizational info (policies, procedures)
+- **50-69**: Helpful utilities (weather, system info)
+- **30-49**: Nice-to-have features
+
+### Adding New Knowledge Sources
+1. Copy `template-knowledge.ts` as starting point
+2. Implement interface methods with your data logic
+3. Define keywords and priority level (90+ for critical business data)
+4. Export from index.ts for automatic registration
+5. Test with sample conversations
+
+### Benefits
+- **Zero Learning Curve**: Users chat naturally without special commands
+- **Contextual Intelligence**: Responses enhanced with live, relevant data
+- **Scalable Architecture**: Easy to add unlimited knowledge domains
+- **Real-time Data**: Always current information from live sources
+- **Cross-Platform**: Same intelligence works in M365, MCP, Web, APIs
 
 ---
 

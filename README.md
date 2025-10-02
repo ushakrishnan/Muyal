@@ -1,420 +1,127 @@
-# 🐰 Muyal CEA (Conversational Experience Application)
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Microsoft 365 Agents Toolkit](https://img.shields.io/badge/M365-Agents%20Toolkit-blue)](https://github.com/microsoft/teams-toolkit) [![Multi-AI](https://img.shields.io/badge/AI-Multi%20Provider-green)](#ai-providers) [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) ![Local AI](https://camo.githubusercontent.com/68105c95bf7650461ac95a0cdb3212d2693fa865dd382d43ecc4e550cab49f84/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4c6f63616c2d414925323052656164792d6f72616e6765) [![Azure](https://camo.githubusercontent.com/756ce985aae9dc4956426398d69a171aeae6331f1d9db81b2187f420594e0683/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f417a7572652d3030373844343f6c6f676f3d6d6963726f736f66742d617a757265266c6f676f436f6c6f723d7768697465)](https://azure.microsoft.com/) [![OpenAI](https://camo.githubusercontent.com/35e05fc08cfea42506c862f13a6d7f1b057c50c02ca7688057e29002b8e4b648/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4f70656e41492d3431323939313f6c6f676f3d6f70656e6169266c6f676f436f6c6f723d7768697465)](https://openai.com/) [![Anthropic](https://camo.githubusercontent.com/62a1b34db891ee5c3b14b750da774ea431a5333a5fd9933d26b6e32d8b93d539/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f416e7468726f7069632d436c617564652d464636423335)](https://www.anthropic.com/) [![W&B](https://camo.githubusercontent.com/6b479ada7dc538fab3643365c695f77d0f454122c287609ee7f6ddfc2f52ef53/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f57253236422d57656176652d4646424530303f6c6f676f3d77656967687473616e64626961736573266c6f676f436f6c6f723d626c61636b)](https://wandb.ai/) [![Ollama](https://camo.githubusercontent.com/5d332d6d579d963a5249c399ae3f5a2066b367f3c73c34b58b2027f3c3c9d1db/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4f6c6c616d612d4c6f63616c25323041492d303030303030)](https://ollama.ai/) [![REST API](https://camo.githubusercontent.com/3a3fec3adb43d645289ac973fab140cd097957f54d0cf47f73cf72e63688bc61/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f524553542d4150492d303235363942)](http://localhost:3978/api)
 
-A unified, multi-platform **Conversational Experience Application (CEA)** supporting **Microsoft 365**, **Web**, **Slack**, **Discord**, and more. Built with **6 AI provider options** including local AI, advanced observability, **MCP (Model Context Protocol)**, **A2A (Agent-to-Agent)** communication, and a clean, extensible architecture.
+**Muyal** is an enterprise-grade **intelligence hub** designed to unify your organization’s knowledge and AI capabilities into a **single source of truth** . Muyal is at its base [CEA](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/build-custom-engine-agents-in-ai-foundry-for-microsoft-365-copilot/4449623) (Microsoft Custom Engine Agent) and enables seamless integration across Microsoft 365, web platforms, and many other agent networks—delivering **context-aware, intelligent responses** wherever your users work.
 
-## 🏢 Microsoft CEA vs Azure AI Foundry AI Agent
+At its core, Muyal combines **templated knowledge sources** with **infinite extensibility** , ensuring that new domains can be added effortlessly and instantly leveraged across all connected channels. With **Model Context Protocol (MCP)** support and **Agent-to-Agent (A2A)** communication, Muyal doesn’t just serve as a knowledge engine—it becomes the **central nervous system** of your AI ecosystem, powering collaboration between tools, agents, and people.
 
-As a **Microsoft team**, we've built this as a **CEA (Conversational Experience Application)** - here's when to choose this approach:
-
-### 🎯 **Use This CEA When:**
-- **Multi-Platform Deployment**: Need one agent across Teams, Web, Slack, Discord
-- **Custom Architecture**: Require specific business logic, routing, or integrations
-- **Provider Flexibility**: Want to mix Azure OpenAI, Anthropic, Google AI, local models
-- **Enterprise Control**: Need custom observability, cost tracking, compliance features
-- **Development Learning**: Building conversational AI expertise in-house
-- **Complex Workflows**: Multi-step processes, human handoffs, custom validation
-
-```typescript
-// CEA Approach (This Repository)
-- Custom conversation logic and routing
-- Multi-platform abstraction layer
-- Flexible AI provider selection
-- Enterprise observability and cost control
-- Extensible architecture for business needs
-```
-
-## 🤔 Why "Muyal"? (The Rabbit Story)
-
-**"Muyal"** means **"Rabbit"** in Tamil 🐰 - and there's a delightful reason behind this choice!
+## 🐰 Why "Muyal"? (The Rabbit Story)
+"Muyal" means "Rabbit" in Tamil language - and there's a delightful reason behind this choice!
 
 Just like rabbits, this AI agent is:
-- **⚡ Lightning Fast**: Hops between AI providers faster than you can say "ChatGPT"
-- **🔄 Multi-Platform**: Jumps seamlessly from Teams to Web to Slack (like rabbits hopping between gardens)
-- **🌱 Reproduces Quickly**: One codebase, infinite platform adaptations (rabbits are known for... well, you know)
-- **👂 Always Listening**: Those big ears aren't just for show - ready to respond on any platform
-- **🏠 Adaptable**: Comfortable in any environment - cloud, local, enterprise, or your garage server
-- **🥕 Loves Good Food**: Feeds on quality prompts and delivers even better responses
-
-*Plus, "Muyal" sounds way cooler than "GenericAIBot2024" and definitely more professional than "RabbitGPT" 😄*
-
-**Fun Fact**: In Tamil folklore, rabbits are considered clever problem-solvers who find creative solutions - exactly what this AI agent does when routing between 6 different AI providers! 🧠✨
-
-[![Microsoft 365 Agents Toolkit](https://img.shields.io/badge/M365-Agents%20Toolkit-blue)](https://github.com/microsoft/teams-toolkit)
-[![Multi-AI](https://img.shields.io/badge/AI-Multi%20Provider-green)](#ai-providers)
-[![Local AI](https://img.shields.io/badge/Local-AI%20Ready-orange)](#local-ai-support)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Azure](https://img.shields.io/badge/Azure-0078D4?logo=microsoft-azure&logoColor=white)](https://azure.microsoft.com/)
-[![OpenAI](https://img.shields.io/badge/OpenAI-412991?logo=openai&logoColor=white)](https://openai.com/)
-[![Anthropic](https://img.shields.io/badge/Anthropic-Claude-FF6B35)](https://www.anthropic.com/)
-[![W&B](https://img.shields.io/badge/W%26B-Weave-FFBE00?logo=weightsandbiases&logoColor=black)](https://wandb.ai/)
-[![Ollama](https://img.shields.io/badge/Ollama-Local%20AI-000000)](https://ollama.ai/)
-[![REST API](https://img.shields.io/badge/REST-API-02569B)](http://localhost:3978/api)
-[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-## 🎯 What This Repository Showcases
-
-This project demonstrates **modern AI application architecture** with enterprise-grade patterns and best practices. Perfect as a **starter template** for building production-ready AI agents that work across multiple platforms and AI providers.
-
-### **🏗️ Architecture Patterns Demonstrated:**
-- **Multi-Platform Abstraction**: Single codebase supporting Teams, Web, Slack, Discord through adapter pattern
-- **AI Provider Abstraction**: Seamlessly switch between OpenAI, Anthropic, Azure OpenAI, Google AI, and local models
-- **MCP Integration**: Model Context Protocol server for external function calling (Claude Desktop, etc.)
-- **A2A Communication**: Agent-to-Agent discovery, registration, and inter-agent messaging
-- **Observability-First Design**: Built-in W&B Weave tracing for cost tracking, performance monitoring, and conversation analytics
-- **Configuration-Driven**: Environment-based provider selection and platform routing
-- **Extensible Framework**: Template-based approach for adding new platforms and AI providers
-
-### **🚀 Use This Repository As Your Starter For:**
-
-**Enterprise AI Assistants:**
-```typescript
-// Production-ready patterns for business applications
-- Multi-tenant AI agent deployments
-- Compliance-first Azure OpenAI integration
-- Cost tracking and optimization
-- Team collaboration through Microsoft 365
-```
-
-**Multi-Platform Chatbots:**
-```typescript
-// One agent, multiple platforms
-- Teams bot for internal collaboration
-- Web interface for customer support  
-- Slack integration for developer teams
-- API endpoints for custom integrations
-```
-
-**AI Provider Flexibility:**
-```typescript
-// Mix and match AI providers by use case
-- Azure OpenAI for sensitive enterprise data
-- Anthropic Claude for creative tasks
-- Local Ollama for development and privacy
-- Google Gemini for cost-effective scale
-```
-
-**Observability & Cost Management:**
-```typescript
-// Enterprise-grade monitoring out of the box
-- Real-time cost tracking across all providers
-- Conversation-level performance analytics
-- User feedback integration and quality metrics
-- Provider reliability and failover monitoring
-```
-
-### **💡 Perfect Starting Point For:**
-- **Enterprise AI Teams** building internal assistants
-- **SaaS Companies** adding AI features to existing products  
-- **Consultants** deploying client-specific AI solutions
-- **Developers** learning modern AI application patterns
-- **Startups** needing rapid AI prototype-to-production
-
-## ⚡ Quick Start
-
-### 1. Install Dependencies
-```bash
-git clone https://github.com/ushakrishnan/Muyal.git
-cd Muyal
-npm install
-```
-
-### 2. Configure AI Provider
-Choose your preferred setup:
-
-**Enterprise (Recommended):**
-```bash
-cp .env.example .env
-# Add your Azure OpenAI credentials
-AZURE_OPENAI_API_KEY=your-key
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
-AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
-```
-
-**Privacy-First (Local AI):**
-```bash
-# Install Ollama: https://ollama.ai/
-ollama pull llama3.2:3b
-# Configure local AI
-OLLAMA_ENABLED=true
-OLLAMA_MODEL=llama3.2:3b
-```
-
-### 3. Start the Agent
-```bash
-# Quick start (recommended) - Auto-opens browser windows
-npm start
-
-# Alternative startup options
-npm run start:muyal-simple     # Simple batch version (also opens browser)
-npm run dev                    # Development mode with hot reload
-scripts\start-muyal.ps1 -NoBrowser  # Skip automatic browser opening
-```
-
-🌐 **Web Interface**: http://localhost:3978  
-🔗 **Microsoft 365**: http://localhost:56150  
-📊 **W&B Weave Traces**: https://wandb.ai/[entity]/[project]/weave (if configured)
-
-### 📸 Interface Examples
-
-**Web Interface (localhost:3978)**
-<img src="public/assets/webagent.png" alt="Web Interface Example" width="600" />
-
-*Clean, responsive web chat interface for direct user interactions*
-
-**Microsoft 365 Playground (localhost:56150)**
-<img src="public/assets/playground.png" alt="Microsoft 365 Playground Example" width="600" />
-
-*Microsoft 365 Agents Playground for testing Teams integration and M365 Copilot features*
-
-**Startup Features:**
-- **Auto-cleanup**: Terminates existing processes
-- **Configuration validation**: Checks for AI provider setup  
-- **Dual-service**: Starts both web interface and M365 playground
-- **Auto-browser**: Automatically opens both interfaces in your browser
-- **Smart timing**: Waits for services to initialize before opening URLs
-- **Clear feedback**: Shows startup progress and URLs
-
-## 🎯 AI Providers
-
-Choose from **6 AI providers** to match your needs:
-
-| Provider | Models | Best For | Setup Time |
-|----------|--------|----------|------------|
-| **Azure OpenAI** | GPT-4o, GPT-4 | Enterprise, compliance | 2 min |
-| **OpenAI** | GPT-4o, GPT-4, GPT-3.5 | General purpose | 1 min |
-| **Anthropic** | Claude-3 Sonnet, Haiku | Creative writing, analysis | 1 min |
-| **Google AI** | Gemini Pro, Flash | Fast responses, cost-effective | 1 min |
-| **Azure AI Foundry** | Llama 2, Mistral, Phi-3 | Open models, flexibility | 3 min |
-| **Ollama** | Local models | Privacy, offline, no costs | 5 min |
-
-## 🔌 MCP & A2A Integration
-
-### Model Context Protocol (MCP) Support
-- **External Function Calling**: Expose Muyal's capabilities to Claude Desktop, VS Code, and other MCP clients
-- **Extensible Functions**: Add custom functions for weather, time, system info, and more
-- **Standardized Interface**: Industry-standard protocol for AI tool integration
-
-### Agent-to-Agent (A2A) Communication
-- **Agent Discovery**: Automatic registration and discovery of other AI agents
-- **Inter-Agent Messaging**: Send requests, notifications, and broadcasts between agents
-- **Network Coordination**: Build multi-agent systems with Muyal as a hub
-
-```bash
-# Enable MCP and A2A capabilities
-npm run test:mcp
-
-# Start MCP server for external clients
-npm run mcp:server
-
-# Test the integration
-npm run mcp
-```
-
-**Available MCP Functions:**
-- `chat` - Send messages to Muyal
-- `health` - Check system status
-- `get_weather` - Weather information
-- `list_agents` - Show connected agents
-- `call_agent` - Communicate with other agents
-- `broadcast` - Send to all agents
-
-**📖 See:** [MCP & A2A Integration Guide](docs/MCP_A2A_INTEGRATION.md)
-
-## 🌐 Platform Support
-
-### Current Platforms
-- ✅ **Microsoft 365** (Teams, Copilot integration)
-- ✅ **Web Interface** (Direct chat)
-- ✅ **REST API** (Programmatic access)
-
-### Extensible Architecture
-- � **Slack** (Template ready)
-- 🔜 **Discord** (Template ready)
-- 🔜 **Telegram** (Template ready)
-- 🔜 **WhatsApp** (Template ready)
-
-## 🏗️ Architecture
-
-```
-Platform Interfaces (Web, M365, Slack...)
-           ↓
-Platform Adapters (Message transformation)
-           ↓
-Conversation Handler (Central processing)
-           ↓
-AI Processor (Provider selection)
-           ↓
-AI Providers (OpenAI, Anthropic, Ollama...)
-```
-
-**Key Benefits:**
-- 🔧 **Modular**: Add platforms and providers easily
-- 🔄 **Flexible**: Mix different AI providers per platform
-- 🛡️ **Reliable**: Automatic fallbacks and health monitoring
-- 🔒 **Secure**: Local AI options for sensitive data
-
-## 🔧 Local AI Support
-
-**Complete Privacy & Cost Control:**
-
-```bash
-# Install Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Pull AI models
-ollama pull llama3.2:3b      # Fast, general use
-ollama pull codellama:13b    # Code generation
-ollama pull mistral          # Balanced performance
-
-# Configure Muyal
-OLLAMA_ENABLED=true
-OLLAMA_MODEL=llama3.2:3b
-M365_AI_PROVIDER=ollama-default
-WEB_AI_PROVIDER=ollama-default
-```
-
-**Benefits:**
-- 🔒 **Complete Privacy**: Data never leaves your network
-- 💰 **Zero API Costs**: No per-request charges
-- ⚡ **Always Available**: Works offline
-- 🛠️ **Development Friendly**: Perfect for testing
-
-## 🚀 Use Cases
-
-### Enterprise Deployment
-```bash
-# Maximum compliance and reliability
-AZURE_OPENAI_API_KEY=your-key
-M365_AI_PROVIDER=azure-openai-default
-WEB_AI_PROVIDER=azure-openai-default
-```
-
-### Multi-Provider Flexibility
-```bash
-# Different AI for different platforms
-M365_AI_PROVIDER=azure-openai-default    # Enterprise compliance
-WEB_AI_PROVIDER=anthropic-default        # Creative conversations
-SLACK_AI_PROVIDER=google-ai-default      # Fast responses
-```
-
-### Development & Testing
-```bash
-# Local AI for development, cloud for production
-OLLAMA_ENABLED=true
-WEB_AI_PROVIDER=ollama-default           # Development
-M365_AI_PROVIDER=azure-openai-default   # Production
-```
-
-## 📊 API Endpoints
-
-### Chat Interface
-```bash
-POST /api/chat
-{
-  "message": "Hello, how can you help me?",
-  "conversationId": "user-123"
-}
-```
-
-### Health & Monitoring
-```bash
-GET /api/health              # System health
-GET /api/ai/health           # AI provider status
-GET /api/ai/config           # Current configuration
-POST /api/feedback           # Collect user feedback
-```
-
-## 📁 Project Structure
-
-```
-Muyal/
-├── src/
-│   ├── core/                # Business logic
-│   │   ├── conversation-handler.ts
-│   │   ├── ai-processor.ts
-│   │   └── providers/       # AI provider implementations
-│   ├── adapters/            # Platform integrations
-│   │   ├── base/
-│   │   ├── microsoft365/
-│   │   ├── web/
-│   │   └── _template/       # New platform template
-│   ├── services/            # Shared services
-│   │   ├── observability/   # W&B integration, metrics tracking
-│   │   ├── analytics/       # Usage analytics
-│   │   └── formatting/      # Message formatting
-│   ├── api/                 # REST API routes
-│   └── index.ts             # Application entry point
-├── docs/                    # Documentation
-│   ├── ARCHITECTURE.md      # Unified system architecture
-│   ├── SETUP_AND_USAGE.md   # Complete setup & observability
-│   └── TROUBLESHOOTING.md   # Common issues & solutions
-├── appPackage/              # Microsoft 365 app manifest
-├── .env.example             # Environment template (main folder)
-└── infra/                   # Azure deployment configs
-```
-
-## 🛠️ Development
-
-### Add New Platform
-1. Copy `src/adapters/_template/` to `src/adapters/your-platform/`
-2. Implement platform-specific message handling
-3. Register in adapter registry
-4. Configure AI provider mapping
-
-### Add New AI Provider
-1. Create `src/core/providers/your-provider.ts`
-2. Implement `AIProvider` interface
-3. Add configuration to `ai-configuration.ts`
-4. Update environment variables
-
-## 📚 Documentation
-
-- **[Setup & Usage Guide](docs/SETUP_AND_USAGE.md)** - Complete configuration, usage, and observability setup
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - Unified system architecture and design patterns
-- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Common issues and solutions
-
-## 🔍 Observability & Monitoring
-
-### Built-in Analytics
-- ✅ **Provider Health Monitoring**: Real-time status of all AI providers
-- ✅ **Request Tracking**: Count, errors, response times via W&B integration
-- ✅ **Cost Estimation**: Track spending across providers with detailed analytics
-- ✅ **API Health Endpoints**: `/api/health`, `/api/ai/health`, `/api/feedback`
-
-### W&B Weave Tracing (Default)
-Built-in W&B Weave integration provides AI-native observability with free tier:
-
-```bash
-# Setup (included in dependencies)
-WANDB_ENABLED=true
-WANDB_API_KEY=your-api-key
-WANDB_PROJECT=muyal-ai-agent
-WANDB_ENTITY=your-username
-```
-
-**AI Tracing Features:**
-- � **Complete Conversation Traces**: Full prompt/response chains with metadata
-- 💰 **Token & Cost Tracking**: Real spending across all providers with detailed breakdowns
-- ⚡ **Performance Analytics**: Response times, error rates, provider comparison
-- 👤 **User Feedback Integration**: Quality ratings linked to specific conversations
-- 🎯 **Model Performance**: Side-by-side provider comparison and optimization insights
-- � **Weave Dashboard**: Purpose-built AI application observability at https://wandb.ai/[entity]/[project]/weave
-
-### Alternative Options
-Swappable observability providers for different needs:
-
-```bash
-# Option 1: LangFuse (Open source, self-hosted)
-npm install langfuse
-
-# Option 2: Prometheus + Grafana (Custom metrics)
-# See observability section in: docs/SETUP_AND_USAGE.md
-```
-
-**📖 See:** [Setup & Usage Guide](docs/SETUP_AND_USAGE.md) • [Architecture Overview](docs/ARCHITECTURE.md)
-
-## 🤝 Contributing
+
+* ⚡ Lightning Fast: Hops between AI providers faster than you can say "ChatGPT"
+* 🔄 Multi-Platform: Jumps seamlessly from Teams to Web to Slack (like rabbits hopping between gardens)
+* 🌱 Reproduces Quickly: One codebase, infinite platform adaptations (rabbits are known for... well, you know)
+* 👂 Always Listening: Those big ears aren't just for show - ready to respond on any platform
+* 🏠 Adaptable: Comfortable in any environment - cloud, local, enterprise, or your garage server
+* 🥕 Loves Good Food: Feeds on quality prompts and delivers even better responses
+
+Plus, "Muyal" sounds way cooler than "GenericAIBot2024" and definitely more professional than "RabbitGPT" 😄
+
+**Fun Fact:** In Tamil folklore, rabbits are considered clever problem-solvers who find creative solutions - exactly what this AI agent does when routing between 6 different AI providers! 
+
+## Features
+
+* **Single Source of Truth**: One backend intelligence system that serves Microsoft 365, MCP clients, web interfaces, and agent networks
+* **Automatic Knowledge Enhancement**: Contextually aware responses without manual commands or data lookup - built on the [Microsoft CEA pattern](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/build-custom-engine-agents-in-ai-foundry-for-microsoft-365-copilot/4449623)
+* **Templated Knowledge Sources**: Copy-paste template system for adding new knowledge domains - each new source instantly works across all platforms
+* **MCP Integration**: Native Model Context Protocol server that exposes capabilities to Claude Desktop, VS Code, and any MCP client
+* **Agent-to-Agent (A2A)**: Automatic agent discovery, registration, and inter-agent communication for building intelligent networks
+* **Universal Platform Support**: Same intelligence engine powers Teams, Web, Slack, Discord, APIs, and custom integrations
+* **Conversation Memory**: Persistent chat history with smart reset commands ("new conversation", "start fresh")
+* **Multi-AI Provider Support**: Switch between Azure OpenAI, OpenAI, Anthropic, Google AI, and local models
+* **Enterprise Observability**: W&B Weave integration for logging metrics, visualizing model performance, and monitoring experiments in real time
+
+## Special Feature: Intelligence Extension through Templated Knowledge Source
+
+**The Problem**: Adding new knowledge to AI systems traditionally requires:
+* Platform-specific integrations for each channel (Teams, Web, Slack, etc.)
+* Custom API endpoints and authentication per knowledge source
+* Separate configuration for different AI providers
+* Manual updates across multiple systems
+
+**The Solution:** Muyal makes adding *Your Knowledge Domain* easy by using templated ways of adding knowledge sources.
+1. Copy `template-knowledge.ts`
+2. Define relevance keywords/patterns
+3. Connect to your data source (API, database, files)
+4. Add helpful suggestions
+5. Drop it into knowledge sources folder
+6. **Result**: Instantly works across all platforms and agent networks
+
+## What is Muyal? (Simple Explanation)
+
+**Muyal is like having a super-smart AI assistant that learns about anything you teach it, then works across every app you use.** You can teach it about weather, sports, homework, gaming stats, crypto prices - literally any topic. Just connect it to websites, spreadsheets, or documents, and it automatically knows when to use that information. The magic? Add a new "knowledge source" in 5 minutes using copy-and-paste, and instantly it becomes smarter about that topic everywhere - Teams, websites, other AI tools, all at once.
+
+**Even cooler: Muyal creates AI teams that work together.** Think "group chat for AI assistants" - Muyal connects specialized AI helpers (weather bot, sports bot, homework helper) so they share information and coordinate. Build your own AI for anything you care about (tracking concerts, school projects), and it automatically joins the network, talking and collaborating with Muyal and all other AI helpers.
+
+## 🔧 Recent Updates & Latest Features
+
+###  **Conversation Memory System** 
+- **Persistent History**: All conversations automatically saved with full context across sessions
+- **Smart Context**: AI remembers previous discussions to provide better responses
+- **JSON Storage**: Conversations stored in `./data/conversations/` with metadata
+
+###  **Smart Conversation Reset**
+- **Natural Commands**: Type "new conversation", "start fresh", "clear chat", or "reset conversation" 
+- **Clean Slate**: Instantly start with fresh context and clear knowledge source accumulation
+- **UI Integration**: "Clear Chat" button properly resets conversation with new ID
+
+###  **Enhanced Web Interface**
+- **Markdown Support**: Images and formatting render properly in chat
+- **Knowledge Sources Display**: See which sources enhanced each response
+- **Improved UX**: Visual indicators and better conversation flow
+
+###  **Development Environment Fixes**
+- **Nodemon Configuration**: No more auto-restarts when writing conversation files
+- **Stable Development**: Proper ignore patterns for data directories
+- **Debug Logging**: Enhanced troubleshooting capabilities
+
+##  Quick Start & Usage Examples
+
+### **Employee Lookup Example:**
+- **You ask**: "Who is John in marketing?"
+- **Muyal**: Automatically queries employee database → "John Smith is a Marketing Manager in the Digital team, based in Seattle. Contact: john.smith@company.com"
+
+### **Weather & Context:**
+- **You ask**: "Should I bring an umbrella today?"
+- **Muyal**: Checks weather API → "Yes! There's a 70% chance of rain in your area today with showers expected this afternoon."
+
+### **Gaming Help:**
+- **You ask**: "Best strategy for Margit in Elden Ring?"
+- **Muyal**: Pulls from game wiki → "Margit is weak to bleed damage. Use Spirit Ash summons and attack his ankles. Key items: Margit's Shackle from Patches..."
+
+### **Fun Content:**
+- **You ask**: "Show me a cute dog"
+- **Muyal**: Fetches from Dog API → Displays random dog image with breed information
+
+### **Conversation Reset:**
+- **You type**: "new conversation" 
+- **Muyal**: " **Started a new conversation!** Your chat history has been cleared and we're starting fresh. How can I help you?"
+
+##  Documentation
+
+| Document | Purpose |
+|----------|---------|
+| **[SETUP_AND_USAGE.md](docs/SETUP_AND_USAGE.md)** | Installation, configuration, AI providers |
+| **[CAPABILITIES.md](docs/CAPABILITIES.md)** | Functions, MCP integration, examples |
+| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System design, extending knowledge sources |
+| **[MCP_A2A_INTEGRATION.md](docs/MCP_A2A_INTEGRATION.md)** | Protocol details, agent networks |
+| **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** | Common issues and solutions |
+
+## Tech stack
+
+* **Runtime**: Node.js + TypeScript with enterprise-grade error handling and observability
+* **AI Providers**: Azure OpenAI, Azure AI Foundry, OpenAI, Anthropic Claude, Google AI, Ollama (local models)
+* **Microsoft 365**: Teams Toolkit integration with Custom Engine Agent (CEA) pattern
+* **MCP Protocol**: Native Model Context Protocol server for Claude Desktop, VS Code, and external integrations
+* **A2A Network**: Agent discovery, registration, and inter-agent communication system
+* **Observability**: W&B Weave tracing with cost tracking and performance analytics across all channels
+* **Storage**: JSON-based conversation persistence with automatic cleanup
+* **Development**: Nodemon with smart file watching, TypeScript compilation, hot reload
+
+##  Contributing
+
+[](https://github.com/ushakrishnan/muyal#-contributing)
 
 1. Fork the repository
 2. Create your feature branch: `git checkout -b feature/amazing-feature`
@@ -422,16 +129,35 @@ npm install langfuse
 4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
-## 📄 License
+##  License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[](https://github.com/ushakrishnan/muyal#-license)
 
-## 🆘 Support
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/ushakrishnan/Muyal/blob/master/LICENSE) file for details.
 
-- 📖 Check the [Setup Guide](docs/SETUP_AND_USAGE.md) for common issues
-- 🔍 View [API health endpoints](#api-endpoints) for debugging
-- 🐛 Create an issue for bugs or feature requests
+#  Muyal Documentation
+
+| Document | Purpose | When to Use |
+|----------|---------|-------------|
+| **[SETUP_AND_USAGE.md](SETUP_AND_USAGE.md)** | Installation, configuration, AI providers | Getting started, changing providers |
+| **[CAPABILITIES.md](CAPABILITIES.md)** | Functions, MCP integration, examples | Understanding what works now |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)** | System design, knowledge sources | Technical understanding, extending |
+| **[MCP_A2A_INTEGRATION.md](MCP_A2A_INTEGRATION.md)** | Protocol details, agent networks | Building integrations |
+| **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | Common issues and solutions | When things don't work |
+
+## Start Here
+
+1. **First time?** → [SETUP_AND_USAGE.md](SETUP_AND_USAGE.md)
+2. **Want to see what it can do?** → [CAPABILITIES.md](CAPABILITIES.md)
+3. **Building extensions?** → [ARCHITECTURE.md](ARCHITECTURE.md)
+4. **Problems?** → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+
+##  Support
+
+*  Check the [Setup Guide](docs/SETUP_AND_USAGE.md) for installation help
+*  View [Current Capabilities](docs/CAPABILITIES.md) for function reference
+*  Create an issue for bugs or feature requests
 
 ---
 
-**Ready to get started?** Follow the [Quick Start](#quick-start) guide above! 🚀
+**Ready to get started?** Let's go!! 🚀

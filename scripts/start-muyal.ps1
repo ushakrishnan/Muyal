@@ -1,22 +1,35 @@
-# Muyal Agent Startup Script
-# Starts both playground and agent services and automatically opens browser windows
+# Muyal Custom Engine Agent (CEA) Startup Script
+# Starts CEA services with optional MCP and A2A capabilities
 #
 # Parameters:
 #   -SkipCleanup : Skip killing existing node processes
 #   -Verbose     : Enable verbose logging
 #   -NoBrowser   : Skip automatic browser opening
+#   -EnableMCP   : Start MCP (Model Context Protocol) server
+#   -EnableA2A   : Start A2A (Agent-to-Agent) communication
 #
 # Examples:
-#   .\start-muyal.ps1              # Start with browser opening
-#   .\start-muyal.ps1 -NoBrowser   # Start without browser opening
+#   .\start-muyal.ps1                        # Start basic CEA
+#   .\start-muyal.ps1 -EnableMCP             # Start CEA with MCP server
+#   .\start-muyal.ps1 -EnableMCP -EnableA2A  # Start full CEA with MCP and A2A
+#   .\start-muyal.ps1 -NoBrowser             # Start without browser opening
 
 param(
     [switch]$SkipCleanup,
     [switch]$Verbose,
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$EnableMCP,
+    [switch]$EnableA2A
 )
 
-Write-Host "Starting Muyal Multi-LLM Agent and Playground..." -ForegroundColor Green
+Write-Host "Starting Muyal Custom Engine Agent (CEA)..." -ForegroundColor Green
+
+if ($EnableMCP) {
+    Write-Host "  + MCP (Model Context Protocol) Server enabled" -ForegroundColor Cyan
+}
+if ($EnableA2A) {
+    Write-Host "  + A2A (Agent-to-Agent) Communication enabled" -ForegroundColor Cyan
+}
 
 # Cleanup existing node processes
 if (-not $SkipCleanup) {
@@ -81,11 +94,31 @@ Start-Sleep -Seconds 5
 Write-Host "Starting agent..." -ForegroundColor Cyan
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "npm run dev:teamsfx:playground"
 
+# Start MCP server if enabled
+if ($EnableMCP) {
+    Write-Host "Starting MCP server..." -ForegroundColor Cyan
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "npm run mcp:server"
+    Start-Sleep -Seconds 2
+}
+
+# Start A2A server if enabled
+if ($EnableA2A) {
+    Write-Host "Starting A2A communication..." -ForegroundColor Cyan
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "npm run a2a:server"
+    Start-Sleep -Seconds 2
+}
+
 Write-Host ""
-Write-Host "SUCCESS! Multi-LLM Agent services started in separate windows:" -ForegroundColor Green
+Write-Host "SUCCESS! Custom Engine Agent (CEA) services started:" -ForegroundColor Green
 Write-Host "  * Microsoft 365 Playground: http://localhost:56150 (Teams testing)" -ForegroundColor White
 Write-Host "  * Web Chat Interface: http://localhost:3978 (Direct web chat)" -ForegroundColor White
 Write-Host "  * Agent API: Running on port 3978" -ForegroundColor Cyan
+if ($EnableMCP) {
+    Write-Host "  * MCP Server: Running on stdio (for external MCP clients)" -ForegroundColor Green
+}
+if ($EnableA2A) {
+    Write-Host "  * A2A Communication: Active (agent discovery enabled)" -ForegroundColor Green
+}
 Write-Host ""
 
 if (-not $NoBrowser) {
@@ -109,7 +142,17 @@ if (-not $NoBrowser) {
 Write-Host "Available interfaces:" -ForegroundColor Cyan
 Write-Host "  * Microsoft 365 Playground: http://localhost:56150 (Teams app testing)" -ForegroundColor White
 Write-Host "  * Web Chat Interface: http://localhost:3978 (Direct web chat)" -ForegroundColor White
+if ($EnableMCP) {
+    Write-Host "  * MCP Server: Available for Claude Desktop, VS Code, and other MCP clients" -ForegroundColor Green
+}
+if ($EnableA2A) {
+    Write-Host "  * A2A Network: Agent discovery and inter-agent communication active" -ForegroundColor Green
+}
 Write-Host ""
 Write-Host "TIP: If pages don't load immediately, wait a moment for services to fully start" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "To stop: Close both PowerShell windows or press Ctrl+C in each" -ForegroundColor Gray
+if ($EnableMCP -or $EnableA2A) {
+    Write-Host "To test MCP/A2A: npm run test:mcp" -ForegroundColor Cyan
+    Write-Host ""
+}
+Write-Host "To stop: Close all PowerShell windows or press Ctrl+C in each" -ForegroundColor Gray

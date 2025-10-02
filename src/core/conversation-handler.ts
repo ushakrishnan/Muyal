@@ -35,6 +35,49 @@ export class ConversationHandler {
   }
 
   /**
+   * Handle a simple message and return response (for MCP integration)
+   */
+  async handleMessage(input: {
+    content: string;
+    conversationId: string;
+    platform: string;
+    userId: string;
+    metadata?: any;
+  }): Promise<{ content: string; metadata?: any }> {
+    try {
+      // Ensure initialization
+      if (!ConversationHandler.initialized) {
+        await ConversationHandler.initialize();
+      }
+
+      // Process the message using AI processor
+      const response = await this.aiProcessor.processMessage(
+        input.platform as any,
+        input.content,
+        [], // Empty history for now
+        {
+          conversationId: input.conversationId
+        }
+      );
+
+      return {
+        content: response.content,
+        metadata: {
+          provider: response.metadata?.provider,
+          model: response.metadata?.model,
+          processingTime: response.metadata?.processingTime
+        }
+      };
+    } catch (error) {
+      console.error('Error in handleMessage:', error);
+      return {
+        content: 'Sorry, I encountered an error processing your message.',
+        metadata: { error: error instanceof Error ? error.message : 'Unknown error' }
+      };
+    }
+  }
+
+  /**
    * Universal conversation handler - handles ALL conversations regardless of platform
    */
   async handleConversation(

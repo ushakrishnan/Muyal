@@ -1,8 +1,8 @@
-# 🚀 Muyal AI Agent - Complete Setup & Usage Guide
+# 🚀 Muyal Setup & Usage Guide
 
 ## Overview
 
-Muyal is a versatile AI agent that supports multiple platforms (Microsoft 365, Web, Slack, Discord, etc.) with flexible AI provider integration. Choose from 6 different AI providers including local options for complete privacy.
+Muyal is a Custom Engine Agent (CEA) with templated knowledge sources that serves as a single source of truth across Microsoft 365, MCP clients, web interfaces, and agent networks. This guide covers setup, configuration, and current capabilities.
 
 ## 🎯 Supported AI Providers
 

@@ -109,6 +109,6 @@ async function demonstrateMCPandA2A() {
 export { demonstrateMCPandA2A };
 
 // Run demo if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
   demonstrateMCPandA2A();
 }

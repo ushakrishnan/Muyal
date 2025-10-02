@@ -1,6 +1,6 @@
-import { UnifiedAgentServer } from '../core/unified-agent-server.js';
-import { ConversationHandler } from '../core/conversation-handler.js';
-import { AIProcessor } from '../core/ai-processor.js';
+import { UnifiedAgentServer } from '../core/unified-agent-server';
+import { ConversationHandler } from '../core/conversation-handler';
+import { AIProcessor } from '../core/ai-processor';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {

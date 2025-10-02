@@ -257,4 +257,46 @@ export class AIProcessor {
   getSystemPrompt(): string {
     return this.systemPrompt;
   }
+
+  /**
+   * Get health status of all AI providers
+   */
+  async getHealthStatus(): Promise<any> {
+    try {
+      return await AIConfiguration.checkHealth();
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        status: 'failed'
+      };
+    }
+  }
+
+  /**
+   * Get available AI providers
+   */
+  getAvailableProviders(): string[] {
+    try {
+      const config = AIConfiguration.getConfigurationSummary();
+      return config.availableProviders || [];
+    } catch (error) {
+      console.error('Error getting available providers:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get current AI configuration
+   */
+  getConfiguration(): any {
+    try {
+      return AIConfiguration.getConfigurationSummary();
+    } catch (error) {
+      console.error('Error getting configuration:', error);
+      return {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        initialized: false
+      };
+    }
+  }
 }

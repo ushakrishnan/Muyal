@@ -1,6 +1,10 @@
-import { ConversationHandler } from './conversation-handler.js';
-import { AIProcessor } from './ai-processor.js';
-import { A2ARegistry, A2ACommunicator, A2ACapabilityManager, AgentMetadata, A2AMessage, A2AResponse } from './a2a-communication.js';
+import { ConversationHandler } from './conversation-handler';
+import { AIProcessor } from './ai-processor';
+import { A2ARegistry, A2ACommunicator, A2ACapabilityManager, AgentMetadata, A2AMessage, A2AResponse } from './a2a-communication';
+import { knowledgeLibrary, KnowledgeSource } from './knowledge-library';
+import { allKnowledgeSources } from './knowledge-sources';
+import { conversationMemory, ConversationMemoryService, StoredConversationMessage } from './conversation-memory';
+import { ConversationMessage } from './types';
 
 export interface MCPFunction {
   name: string;
@@ -31,7 +35,7 @@ export class UnifiedAgentServer {
     const agentMetadata: AgentMetadata = {
       id: 'muyal-cea-' + Date.now(),
       name: 'Muyal CEA',
-      description: 'Multi-platform Conversational Experience Application with 6 AI provider support',
+      description: 'Custom Engine Agent (CEA) for Microsoft 365 Copilot with 6 AI provider support',
       version: '1.0.0',
       capabilities: [],
       endpoints: {
@@ -45,8 +49,20 @@ export class UnifiedAgentServer {
     this.a2aRegistry = new A2ARegistry(agentMetadata.id, agentMetadata);
     this.a2aCommunicator = new A2ACommunicator(this.a2aRegistry);
 
+    // Initialize knowledge library
+    this.initializeKnowledgeLibrary();
+
     this.registerDefaultFunctions();
     this.registerA2AHandlers();
+  }
+
+  private initializeKnowledgeLibrary(): void {
+    // Register all knowledge sources from the modular structure
+    allKnowledgeSources.forEach((source: KnowledgeSource) => {
+      knowledgeLibrary.registerSource(source);
+    });
+    
+    console.log('📚 Knowledge Library initialized with', knowledgeLibrary.getSources().length, 'sources');
   }
 
   private registerDefaultFunctions() {
@@ -79,24 +95,142 @@ export class UnifiedAgentServer {
       },
       handler: async (args) => {
         try {
+          console.log('🔧 Chat function called with args:', args);
+          
+          // Check for conversation reset commands
+          const resetCommands = ['new conversation', 'start fresh', 'clear chat', 'reset conversation', 'start new', 'clear context'];
+          const isResetCommand = resetCommands.some(cmd => args.message.toLowerCase().includes(cmd));
+          
+          if (isResetCommand) {
+            // Generate new conversation ID for fresh start
+            const newConversationId = `${args.platform || 'web'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            console.log('🔧 Reset command detected, new conversation ID:', newConversationId);
+            
+            return {
+              content: "🔄 **Started a new conversation!** Your chat history has been cleared and we're starting fresh. How can I help you?",
+              provider: 'system',
+              tokens: { prompt: 0, completion: 0 },
+              cost: 0,
+              knowledge_sources_used: [],
+              suggestions: [],
+              enhanced: false,
+              conversationId: newConversationId,
+              reset: true
+            };
+          }
+          
+          // Use knowledge library to enhance message with relevant context
+          const knowledgeContext = await knowledgeLibrary.enhanceMessage(args.message);
+          console.log('🔧 Knowledge context:', knowledgeContext.usedSources);
+          
           const response = await this.processMessageBridge({
-            content: args.message,
+            content: knowledgeContext.enhancedMessage,
             conversationId: args.conversationId || `mcp-${Date.now()}`,
             platform: args.platform || 'mcp',
             userId: 'mcp-user',
             metadata: { 
               source: 'mcp',
-              requestedProvider: args.aiProvider 
+              requestedProvider: args.aiProvider,
+              knowledgeSources: knowledgeContext.usedSources,
+              availableSuggestions: knowledgeContext.suggestions
             },
           });
+          
+          console.log('🔧 Response received:', response.content?.substring(0, 100) + '...');
+          
           return {
             content: response.content,
             provider: response.metadata?.provider,
             tokens: response.metadata?.tokens,
             cost: response.metadata?.cost,
+            knowledge_sources_used: knowledgeContext.usedSources,
+            suggestions: knowledgeContext.suggestions,
+            enhanced: knowledgeContext.usedSources.length > 0,
           };
         } catch (error) {
+          console.error('🔧 Chat function error:', error);
           throw new Error(`Chat failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      },
+    });
+
+    // Knowledge management function
+    this.registerFunction({
+      name: 'manage_knowledge',
+      description: 'Manage knowledge sources, get suggestions, and view available knowledge domains',
+      parameters: {
+        type: 'object',
+        properties: {
+          action: {
+            type: 'string',
+            enum: ['list', 'enable', 'disable', 'suggestions', 'summary'],
+            description: 'Action to perform on knowledge sources',
+            default: 'summary',
+          },
+          source_id: {
+            type: 'string',
+            description: 'Knowledge source ID (required for enable/disable)',
+          },
+          message: {
+            type: 'string', 
+            description: 'Message to get suggestions for (required for suggestions action)',
+          },
+        },
+      },
+      handler: async (args) => {
+        try {
+          switch (args.action) {
+            case 'list':
+              return {
+                knowledge_sources: knowledgeLibrary.getSources().map(source => ({
+                  id: source.id,
+                  name: source.name,
+                  description: source.description,
+                  enabled: source.isEnabled,
+                  keywords: source.keywords,
+                  priority: source.priority,
+                })),
+                total_sources: knowledgeLibrary.getSources().length,
+              };
+
+            case 'enable':
+            case 'disable':
+              if (!args.source_id) {
+                throw new Error('source_id is required for enable/disable actions');
+              }
+              const enabled = args.action === 'enable';
+              knowledgeLibrary.setSourceEnabled(args.source_id, enabled);
+              return {
+                action: args.action,
+                source_id: args.source_id,
+                success: true,
+                message: `Knowledge source ${args.source_id} ${enabled ? 'enabled' : 'disabled'}`,
+              };
+
+            case 'suggestions':
+              if (!args.message) {
+                throw new Error('message is required for suggestions action');
+              }
+              const suggestions = knowledgeLibrary.getQuickSuggestions(args.message);
+              return {
+                message: args.message,
+                suggestions,
+                relevant_sources: knowledgeLibrary.getSources()
+                  .filter(source => source.isEnabled && source.isRelevant(args.message.toLowerCase()))
+                  .map(source => ({ id: source.id, name: source.name })),
+              };
+
+            case 'summary':
+            default:
+              return {
+                knowledge_summary: knowledgeLibrary.getKnowledgeSummary(),
+                total_sources: knowledgeLibrary.getSources().length,
+                enabled_sources: knowledgeLibrary.getSources().filter(s => s.isEnabled).length,
+                available_actions: ['list', 'enable', 'disable', 'suggestions', 'summary'],
+              };
+          }
+        } catch (error) {
+          throw new Error(`Knowledge management failed: ${error instanceof Error ? error.message : String(error)}`);
         }
       },
     });
@@ -297,17 +431,98 @@ export class UnifiedAgentServer {
     userId: string;
     metadata?: any;
   }): Promise<any> {
-    // Use AI processor directly for now
-    const response = await this.aiProcessor.processMessage(
-      params.platform as any,
-      params.content,
-      [] // Empty history for now
-    );
+    try {
+      console.log('🔧 processMessageBridge called with:', {
+        content: params.content.substring(0, 100) + '...',
+        conversationId: params.conversationId,
+        platform: params.platform
+      });
 
-    return {
-      content: response.content,
-      metadata: response.metadata,
-    };
+      // Create conversation context if it doesn't exist
+      if (!conversationMemory.getContext(params.conversationId)) {
+        conversationMemory.createContext(params.conversationId, params.userId, params.platform);
+        console.log('🔧 Created new conversation context');
+      }
+
+      // Add user message to memory
+      const userMessage = conversationMemory.addMessage(params.conversationId, {
+        timestamp: new Date(),
+        role: 'user',
+        content: params.content,
+        metadata: {
+          platform: params.platform,
+        }
+      });
+      console.log('🔧 Added user message to memory');
+
+      // Get simplified conversation history for AI context
+      const recentMessages = conversationMemory.getConversation(params.conversationId).slice(-4);
+      const historyMessages: ConversationMessage[] = recentMessages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+      console.log('🔧 Prepared history messages:', historyMessages.length);
+
+      // Use AI processor with minimal options
+      console.log('🔧 Calling AI processor...');
+      console.log('🔧 AI processor instance:', !!this.aiProcessor);
+      console.log('🔧 History messages count:', historyMessages.length);
+      console.log('🔧 Platform type:', params.platform);
+      console.log('🔧 Message content length:', params.content.length);
+      
+      let response;
+      try {
+        response = await this.aiProcessor.processMessage(
+          params.platform as any,
+          params.content,
+          historyMessages,
+          {
+            conversationId: params.conversationId,
+          }
+        );
+        console.log('🔧 AI processor response received');
+      } catch (aiError) {
+        console.error('🔧 AI processor error:', aiError);
+        throw aiError;
+      }
+
+      // Add assistant response to memory
+      const assistantMessage = conversationMemory.addMessage(params.conversationId, {
+        timestamp: new Date(),
+        role: 'assistant',
+        content: response.content,
+        metadata: {
+          provider: response.metadata?.provider,
+          tokens: response.metadata?.tokens,
+          knowledge_sources_used: params.metadata?.knowledgeSources || [],
+          suggestions: params.metadata?.availableSuggestions || [],
+          enhanced: params.metadata?.knowledgeSources?.length > 0,
+          platform: params.platform,
+        }
+      });
+      console.log('🔧 Added assistant message to memory');
+
+      // Update conversation context with activity
+      conversationMemory.updateContext(params.conversationId, {
+        lastActivity: new Date(),
+      });
+
+      return {
+        content: response.content,
+        metadata: {
+          ...response.metadata,
+          knowledge_sources_used: params.metadata?.knowledgeSources || [],
+          suggestions: params.metadata?.availableSuggestions || [],
+          enhanced: params.metadata?.knowledgeSources?.length > 0,
+          conversationId: params.conversationId,
+          messageId: assistantMessage.id,
+        },
+      };
+    } catch (error) {
+      console.error('🔧 processMessageBridge error:', error);
+      throw error;
+    }
   }
 
   private async getProviderHealth(): Promise<any> {
@@ -370,5 +585,24 @@ export class UnifiedAgentServer {
   public async stop(): Promise<void> {
     this.isStarted = false;
     console.log('🛑 Unified Agent Server stopped');
+  }
+
+  public async startA2ADiscovery(): Promise<void> {
+    console.log('🔍 Starting A2A discovery mode...');
+    
+    // For now, just log that A2A is in discovery mode
+    // In a full implementation, this would enable network discovery
+    console.log('✅ A2A discovery mode active');
+    console.log(`📡 Agent registry contains ${this.a2aRegistry.getAllAgents().length} agents`);
+    console.log(`🤖 Capabilities available: ${this.capabilityManager.getCapabilities().length}`);
+    
+    // Log available capabilities
+    const capabilities = this.capabilityManager.getCapabilities();
+    if (capabilities.length > 0) {
+      console.log('Available capabilities:');
+      capabilities.forEach(cap => {
+        console.log(`  - ${cap.name}: ${cap.description}`);
+      });
+    }
   }
 }

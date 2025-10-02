@@ -208,6 +208,45 @@
             background: #f8f9ff;
             border: 1px solid #e0e6ff;
         }
+
+        .message-bubble img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 8px 0;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-bubble a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .message-bubble a:hover {
+            text-decoration: underline;
+        }
+
+        .knowledge-sources {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 8px;
+            padding: 6px 10px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+        }
+
+        .knowledge-sources .source-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-right: 6px;
+            margin-bottom: 4px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
@@ -249,7 +288,7 @@
 
     <script>
         // Generate a unique conversation ID for this session
-        const conversationId = 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        let conversationId = 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         
         // Set welcome message time
         document.getElementById('welcomeTime').textContent = new Date().toLocaleTimeString();
@@ -298,12 +337,18 @@
                     throw new Error(data.error || data.message || 'Unknown error');
                 }
 
+                // Check if this was a conversation reset
+                if (data.metadata && data.metadata.reset && data.metadata.conversationId) {
+                    conversationId = data.metadata.conversationId;
+                    console.log('🔄 Conversation reset, new ID:', conversationId);
+                }
+
                 // Add bot response to chat
-                addMessage(data.response, 'bot');
+                addMessage(data.response, 'bot', data.metadata);
 
                 // Add suggestions if available
-                if (data.suggestions && data.suggestions.length > 0) {
-                    addSuggestions(data.suggestions);
+                if (data.metadata && data.metadata.suggestions && data.metadata.suggestions.length > 0) {
+                    addSuggestions(data.metadata.suggestions);
                 }
 
                 // Add actions if available
@@ -322,14 +367,31 @@
             }
         }
 
-        function addMessage(text, sender) {
+        function addMessage(text, sender, metadata = null) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
             
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = 'message-bubble';
-            bubbleDiv.textContent = text;
+            
+            // Parse markdown and convert to HTML for bot messages
+            if (sender === 'bot') {
+                bubbleDiv.innerHTML = parseMarkdown(text);
+            } else {
+                bubbleDiv.textContent = text;
+            }
+            
+            // Add knowledge sources if available
+            if (sender === 'bot' && metadata && metadata.knowledge_sources_used && metadata.knowledge_sources_used.length > 0) {
+                const knowledgeDiv = document.createElement('div');
+                knowledgeDiv.className = 'knowledge-sources';
+                knowledgeDiv.innerHTML = `
+                    <div style="margin-bottom: 4px;">🧠 <strong>Knowledge Sources Used:</strong></div>
+                    ${metadata.knowledge_sources_used.map(source => `<span class="source-tag">${getSourceDisplayName(source)}</span>`).join('')}
+                `;
+                bubbleDiv.appendChild(knowledgeDiv);
+            }
             
             const timeDiv = document.createElement('div');
             timeDiv.className = 'message-time';
@@ -341,6 +403,39 @@
             
             // Scroll to bottom
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Helper function to get display names for knowledge sources
+        function getSourceDisplayName(sourceId) {
+            const displayNames = {
+                'employees': '👥 Employees',
+                'company': '🏢 Company',
+                'weather': '🌤️ Weather',
+                'system': '⚙️ System',
+                'dogs': '🐕 Dogs',
+                'eldenring': '🎮 Elden Ring'
+            };
+            return displayNames[sourceId] || sourceId;
+        }
+
+        // Simple markdown parser for basic formatting and images
+        function parseMarkdown(text) {
+            // Replace markdown images ![alt](url) with proper img tags
+            text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0; display: block;" onerror="this.style.display=\'none\';" />');
+            
+            // Replace **bold** with <strong>
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Replace *italic* with <em>
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Replace [link](url) with proper links
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: #667eea; text-decoration: none;">$1</a>');
+            
+            // Replace line breaks with <br>
+            text = text.replace(/\n/g, '<br>');
+            
+            return text;
         }
 
         function addSuggestions(suggestions) {
@@ -427,24 +522,44 @@
         }
 
         async function clearConversation() {
-            if (confirm('Are you sure you want to clear the conversation?')) {
+            if (confirm('Are you sure you want to start a new conversation?')) {
                 try {
-                    await fetch(`/api/conversation/${conversationId}`, {
-                        method: 'DELETE'
+                    // Send a reset command through the normal chat API
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: 'new conversation',
+                            conversationId: conversationId
+                        })
                     });
+
+                    const data = await response.json();
                     
-                    // Clear messages
-                    const messagesContainer = document.getElementById('chatMessages');
-                    messagesContainer.innerHTML = `
-                        <div class="message bot">
-                            <div class="message-bubble">
-                                Hi there! I'm Muyal, your AI agent. How can I help you today?
-                                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                    if (data.success) {
+                        // Update conversation ID
+                        if (data.metadata && data.metadata.conversationId) {
+                            conversationId = data.metadata.conversationId;
+                        }
+                        
+                        // Clear messages and show fresh start
+                        const messagesContainer = document.getElementById('chatMessages');
+                        messagesContainer.innerHTML = `
+                            <div class="message bot">
+                                <div class="message-bubble">
+                                    ${data.response}
+                                    <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                        
+                        console.log('🔄 Conversation cleared, new ID:', conversationId);
+                    }
                 } catch (error) {
-                    console.error('Error clearing conversation:', error);
+                    console.error('Failed to clear conversation:', error);
+                    alert('Failed to clear conversation. Please try again.');
                 }
             }
         }

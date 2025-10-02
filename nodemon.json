@@ -1,0 +1,22 @@
+{
+  "ignore": [
+    "data/**/*",
+    "*.log",
+    "logs/**/*",
+    "node_modules/**/*",
+    "lib/**/*",
+    "dist/**/*",
+    ".git/**/*"
+  ],
+  "watch": [
+    "src/**/*",
+    "appPackage/**/*",
+    "infra/**/*",
+    "env/**/*",
+    "*.ts",
+    "*.js",
+    "*.json"
+  ],
+  "ext": "ts,js,json",
+  "delay": "1000"
+}

@@ -58,6 +58,13 @@ Thumbs.db
 temp/
 tmp/
 
+# Conversation memory and runtime data
+data/
+data/conversations/
+data/contexts/
+conversations/
+*.conversation.json
+
 # -------------------------------------------------------------------
 # Azure & Deployment
 # -------------------------------------------------------------------

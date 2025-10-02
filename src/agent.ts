@@ -1,15 +1,8 @@
 import { ActivityTypes } from "@microsoft/agents-activity";
 import { AgentApplication, MemoryStorage, TurnContext } from "@microsoft/agents-hosting";
 import config from "./config";
-import { ConversationHandler } from "./core/conversation-handler";
-import { ConversationInput, ConversationContext, ConversationMessage } from "./core/types";
-import { AdapterRegistry } from "./adapters/base/adapter-registry";
-import { Microsoft365Adapter } from "./adapters/microsoft365/m365-adapter";
-import { WebAdapter } from "./adapters/web/web-adapter";
-
-// Register adapters with the organized system
-AdapterRegistry.register(new Microsoft365Adapter());
-AdapterRegistry.register(new WebAdapter());
+import { ConversationMessage } from "./core/types";
+import { integratedServer } from "./integrations/mcp-a2a-integration";
 
 // Define storage and application for Microsoft 365
 const storage = new MemoryStorage();
@@ -24,26 +17,32 @@ agentApp.onConversationUpdate("membersAdded", async (context: TurnContext) => {
 // Listen for ANY message to be received. MUST BE AFTER ANY OTHER MESSAGE HANDLERS
 agentApp.onActivity(ActivityTypes.Message, async (context: TurnContext) => {
   try {
-    // Create conversation input
-    const input: ConversationInput = {
-      message: context.activity.text || '',
-      platformData: context
-    };
+    const message = context.activity.text || '';
+    const conversationId = context.activity.conversation?.id || 'unknown';
     
-    // Create conversation context
-    const conversationContext: ConversationContext = {
-      conversationId: context.activity.conversation?.id || 'unknown',
-      userId: context.activity.from?.id || 'unknown',
+    // Use UnifiedAgentServer chat function with knowledge library integration
+    const result = await integratedServer.getUnifiedServer().callFunction('chat', {
+      message,
+      conversationId,
       platform: 'microsoft365',
-      metadata: {
-        channelId: context.activity.channelId,
-        serviceUrl: context.activity.serviceUrl
-      }
-    };
-    
-    // Use organized conversation handler
-    const conversationHandler = new ConversationHandler();
-    await conversationHandler.handleConversation(input, conversationContext);
+      aiProvider: undefined // Use default
+    });
+
+    // Send the enhanced response
+    await context.sendActivity(result.content);
+
+    // Send suggestions if available
+    if (result.suggestions && result.suggestions.length > 0) {
+      const suggestionsText = "💡 Suggestions:\n" + 
+        result.suggestions.slice(0, 3).map((s: string, i: number) => `${i + 1}. ${s}`).join('\n');
+      await context.sendActivity(suggestionsText);
+    }
+
+    // Show knowledge sources used if any
+    if (result.knowledge_sources_used && result.knowledge_sources_used.length > 0) {
+      const sourcesText = `🧠 Enhanced with: ${result.knowledge_sources_used.join(', ')}`;
+      await context.sendActivity(sourcesText);
+    }
     
   } catch (error) {
     console.error('M365 Agent error:', error);
@@ -64,23 +63,6 @@ export function createWebAdapter() {
 
       const history = conversations.get(conversationId)!;
       
-      // Create conversation input
-      const input: ConversationInput = {
-        message,
-        history: history.slice(), // Copy of history
-        platformData: res
-      };
-      
-      // Create conversation context
-      const conversationContext: ConversationContext = {
-        conversationId,
-        userId: 'web-user',
-        platform: 'web',
-        metadata: {
-          timestamp: new Date().toISOString()
-        }
-      };
-      
       // Add user message to history
       history.push({ 
         role: "user", 
@@ -93,11 +75,46 @@ export function createWebAdapter() {
         history.splice(0, history.length - 10);
       }
 
-      // Use organized conversation handler
-      const conversationHandler = new ConversationHandler();
-      await conversationHandler.handleConversation(input, conversationContext);
-      
-      // Note: Response is sent directly by the web adapter in the uber handler
+      try {
+        // Use UnifiedAgentServer chat function with knowledge library integration
+        const result = await integratedServer.getUnifiedServer().callFunction('chat', {
+          message,
+          conversationId,
+          platform: 'web',
+          aiProvider: undefined // Use default
+        });
+
+        // Add assistant message to history
+        history.push({
+          role: "assistant",
+          content: result.content,
+          timestamp: new Date()
+        });
+
+        // Send the enhanced response
+        res.json({
+          success: true,
+          response: result.content,
+          conversationId,
+          timestamp: new Date().toISOString(),
+          metadata: {
+            provider: result.provider,
+            tokens: result.tokens,
+            cost: result.cost,
+            knowledge_sources_used: result.knowledge_sources_used,
+            suggestions: result.suggestions,
+            enhanced: result.enhanced
+          }
+        });
+
+      } catch (error) {
+        console.error('Web adapter error:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to process message',
+          timestamp: new Date().toISOString()
+        });
+      }
     },
 
     getConversationHistory(conversationId: string) {
@@ -110,8 +127,12 @@ export function createWebAdapter() {
 
     // Get analytics data
     getAnalytics() {
-      const conversationHandler = new ConversationHandler();
-      return conversationHandler.getAnalytics();
+      return {
+        totalConversations: conversations.size,
+        totalMessages: Array.from(conversations.values()).reduce((sum, conv) => sum + conv.length, 0),
+        averageConversationLength: conversations.size > 0 ? 
+          Array.from(conversations.values()).reduce((sum, conv) => sum + conv.length, 0) / conversations.size : 0
+      };
     }
   };
 }

@@ -5,6 +5,8 @@ import path from "path";
 import config from "./config";
 import { ConversationHandler } from "./core/conversation-handler";
 import { AIConfiguration, EnvironmentHelper } from "./core/ai-configuration";
+import { integratedServer } from "./integrations/mcp-a2a-integration";
+import { conversationMemory } from "./core/conversation-memory";
 
 console.log(`🚀 Starting Muyal AI Agent on port ${config.server.port}`);
 if (config.development.debugMode) {
@@ -103,8 +105,29 @@ function startApplication() {
         });
       }
 
-      // Process the message using uber handler (response sent directly)
-      await webAdapter.processMessage(message, conversationId, res);
+      // Use UnifiedAgentServer chat function with knowledge library integration
+      const result = await integratedServer.getUnifiedServer().callFunction('chat', {
+        message,
+        conversationId,
+        platform: 'web',
+        aiProvider: undefined // Use default
+      });
+
+      // Send the enhanced response
+      res.json({
+        success: true,
+        response: result.content,
+        conversationId,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          provider: result.provider,
+          tokens: result.tokens,
+          cost: result.cost,
+          knowledge_sources_used: result.knowledge_sources_used,
+          suggestions: result.suggestions,
+          enhanced: result.enhanced
+        }
+      });
 
     } catch (error) {
       console.error('Chat API error:', error);
@@ -145,14 +168,25 @@ function startApplication() {
     }
   });
 
-  // Get conversation history
+  // Get conversation history (legacy endpoint - redirects to new memory system)
   server.get('/api/conversation/:id', (req, res) => {
     try {
       const { id } = req.params;
-      const history = webAdapter.getConversationHistory(id);
+      const messages = conversationMemory.getConversation(id);
+      const context = conversationMemory.getContext(id);
+      
+      // Convert to legacy format for backward compatibility
+      const legacyHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp,
+        metadata: msg.metadata
+      }));
+      
       res.json({ 
         success: true, 
-        history, 
+        history: legacyHistory,
+        context,
         conversationId: id,
         timestamp: new Date().toISOString()
       });
@@ -165,11 +199,11 @@ function startApplication() {
     }
   });
 
-  // Clear conversation
+  // Clear conversation (updated to use memory service)
   server.delete('/api/conversation/:id', (req, res) => {
     try {
       const { id } = req.params;
-      webAdapter.clearConversation(id);
+      conversationMemory.clearConversation(id);
       res.json({ 
         success: true, 
         message: 'Conversation cleared',
@@ -181,6 +215,89 @@ function startApplication() {
       res.status(500).json({ 
         success: false, 
         error: 'Failed to clear conversation' 
+      });
+    }
+  });
+
+  // Conversation Memory Endpoints
+
+  // Get all conversations list
+  server.get('/api/conversations', (req, res) => {
+    try {
+      const conversations = conversationMemory.getAllConversations();
+      res.json({
+        success: true,
+        conversations,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Get conversations error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to retrieve conversations' 
+      });
+    }
+  });
+
+  // Get specific conversation with full history
+  server.get('/api/conversations/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      const messages = conversationMemory.getConversation(id);
+      const context = conversationMemory.getContext(id);
+      res.json({
+        success: true,
+        conversation: {
+          id,
+          messages,
+          context,
+          messageCount: messages.length
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Get conversation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to retrieve conversation' 
+      });
+    }
+  });
+
+  // Delete specific conversation
+  server.delete('/api/conversations/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      conversationMemory.clearConversation(id);
+      res.json({
+        success: true,
+        message: 'Conversation deleted',
+        conversationId: id,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Delete conversation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to delete conversation' 
+      });
+    }
+  });
+
+  // Get conversation memory statistics
+  server.get('/api/memory/stats', (req, res) => {
+    try {
+      const stats = conversationMemory.getStats();
+      res.json({
+        success: true,
+        stats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Memory stats error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to retrieve memory statistics' 
       });
     }
   });
