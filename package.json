@@ -18,6 +18,9 @@
         "start:muyal:verbose-skip": "powershell -ExecutionPolicy Bypass -File ./scripts/start-muyal.ps1 -Verbose -SkipCleanup",
         "start:muyal-simple": "scripts/start-muyal.bat",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
+        "mcp": "node -r ts-node/register ./src/examples/mcp-a2a-demo.ts",
+        "mcp:server": "node -r ts-node/register -e \"import('./src/integrations/mcp-a2a-addon.js').then(m => m.startMCPServer())\"",
+        "test:mcp": "node -r ts-node/register -e \"import('./src/integrations/mcp-a2a-addon.js').then(m => m.addMCPandA2ACapabilities())\"",
         "build": "tsc --build",
         "test": "echo \"Error: no test specified\" && exit 1",
         "test-config": "node -r dotenv/config -e \"const config = require('./lib/src/config.js').default; console.log('✅ Configuration loaded successfully'); console.log('Azure OpenAI Endpoint:', config.azureOpenAI.endpoint); console.log('API Version:', config.azureOpenAI.apiVersion);\"",
@@ -31,6 +34,7 @@
         "@azure/identity": "^4.8.0",
         "@azure/openai": "^2.0.0",
         "@microsoft/agents-hosting-express": "^1.0.0",
+        "@modelcontextprotocol/sdk": "^1.19.1",
         "dotenv": "^17.2.3",
         "openai": "^4.94.0",
         "weave": "^0.9.3"

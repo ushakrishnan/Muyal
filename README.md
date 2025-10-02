@@ -1,6 +1,6 @@
 # 🐰 Muyal CEA (Conversational Experience Application)
 
-A unified, multi-platform **Conversational Experience Application (CEA)** supporting **Microsoft 365**, **Web**, **Slack**, **Discord**, and more. Built with **6 AI provider options** including local AI, advanced observability, and a clean, extensible architecture.
+A unified, multi-platform **Conversational Experience Application (CEA)** supporting **Microsoft 365**, **Web**, **Slack**, **Discord**, and more. Built with **6 AI provider options** including local AI, advanced observability, **MCP (Model Context Protocol)**, **A2A (Agent-to-Agent)** communication, and a clean, extensible architecture.
 
 ## 🏢 Microsoft CEA vs Azure AI Foundry AI Agent
 
@@ -59,6 +59,8 @@ This project demonstrates **modern AI application architecture** with enterprise
 ### **🏗️ Architecture Patterns Demonstrated:**
 - **Multi-Platform Abstraction**: Single codebase supporting Teams, Web, Slack, Discord through adapter pattern
 - **AI Provider Abstraction**: Seamlessly switch between OpenAI, Anthropic, Azure OpenAI, Google AI, and local models
+- **MCP Integration**: Model Context Protocol server for external function calling (Claude Desktop, etc.)
+- **A2A Communication**: Agent-to-Agent discovery, registration, and inter-agent messaging
 - **Observability-First Design**: Built-in W&B Weave tracing for cost tracking, performance monitoring, and conversation analytics
 - **Configuration-Driven**: Environment-based provider selection and platform routing
 - **Extensible Framework**: Template-based approach for adding new platforms and AI providers
@@ -185,6 +187,39 @@ Choose from **6 AI providers** to match your needs:
 | **Google AI** | Gemini Pro, Flash | Fast responses, cost-effective | 1 min |
 | **Azure AI Foundry** | Llama 2, Mistral, Phi-3 | Open models, flexibility | 3 min |
 | **Ollama** | Local models | Privacy, offline, no costs | 5 min |
+
+## 🔌 MCP & A2A Integration
+
+### Model Context Protocol (MCP) Support
+- **External Function Calling**: Expose Muyal's capabilities to Claude Desktop, VS Code, and other MCP clients
+- **Extensible Functions**: Add custom functions for weather, time, system info, and more
+- **Standardized Interface**: Industry-standard protocol for AI tool integration
+
+### Agent-to-Agent (A2A) Communication
+- **Agent Discovery**: Automatic registration and discovery of other AI agents
+- **Inter-Agent Messaging**: Send requests, notifications, and broadcasts between agents
+- **Network Coordination**: Build multi-agent systems with Muyal as a hub
+
+```bash
+# Enable MCP and A2A capabilities
+npm run test:mcp
+
+# Start MCP server for external clients
+npm run mcp:server
+
+# Test the integration
+npm run mcp
+```
+
+**Available MCP Functions:**
+- `chat` - Send messages to Muyal
+- `health` - Check system status
+- `get_weather` - Weather information
+- `list_agents` - Show connected agents
+- `call_agent` - Communicate with other agents
+- `broadcast` - Send to all agents
+
+**📖 See:** [MCP & A2A Integration Guide](docs/MCP_A2A_INTEGRATION.md)
 
 ## 🌐 Platform Support
 
