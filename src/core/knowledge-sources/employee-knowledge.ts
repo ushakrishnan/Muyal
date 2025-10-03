@@ -4,14 +4,15 @@
  */
 
 import { KnowledgeSource } from '../knowledge/library';
+import { logErrorEntity } from '../errors/error-entity';
 
 // Fallback employee data when API is unavailable
-const getFallbackEmployeeData = (): string => {
-  return `Employee database temporarily unavailable due to rate limiting.
+const getFallbackEmployeeData = (): { noData: boolean; summary: string } => {
+  const summary = `Employee database temporarily unavailable due to rate limiting.
 
 FALLBACK EMPLOYEE DATA (Sample):
 - Tiger Nixon: Age 61, Salary $320,800
-- Garrett Winters: Age 63, Salary $170,750  
+- Garrett Winters: Age 63, Salary $170,750
 - Ashton Cox: Age 66, Salary $86,000
 - Cedric Kelly: Age 22, Salary $433,060
 - Airi Satou: Age 33, Salary $162,700
@@ -25,6 +26,7 @@ ESTIMATED STATISTICS:
 
 Note: This is cached/fallback data. Real-time data temporarily unavailable due to API rate limits.
 Please try again in a few moments for live employee statistics.`;
+  return { noData: true, summary };
 };
 
 export const employeeKnowledgeSource: KnowledgeSource = {
@@ -52,60 +54,108 @@ export const employeeKnowledgeSource: KnowledgeSource = {
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const response = await fetch('https://dummy.restapiexample.com/api/v1/employees');
-        
+
         if (response.status === 429) {
           // Rate limited - wait before retry
+          const delay = baseDelay * Math.pow(2, attempt); // Exponential backoff
+          const note = `Employee API rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`;
+          console.log(note);
+          await logErrorEntity({
+            timestamp: new Date().toISOString(),
+            sourceId: 'employees',
+            sourceName: 'Employee Database',
+            operation: 'fetchContext',
+            attempt,
+            notes: note,
+          });
           if (attempt < maxRetries) {
-            const delay = baseDelay * Math.pow(2, attempt); // Exponential backoff
-            console.log(`Employee API rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
             await new Promise(resolve => setTimeout(resolve, delay));
             continue;
           } else {
-            // All retries exhausted, return fallback data
+            // All retries exhausted, return structured fallback data
             console.warn('Employee API rate limited, using fallback data');
-            return getFallbackEmployeeData();
+            const fb = getFallbackEmployeeData();
+            await logErrorEntity({
+              timestamp: new Date().toISOString(),
+              sourceId: 'employees',
+              sourceName: 'Employee Database',
+              operation: 'fetchContext',
+              attempt,
+              notes: 'Retries exhausted - returning fallback summary',
+            });
+            return JSON.stringify({ noData: fb.noData, fallbackSummary: fb.summary });
           }
         }
-        
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
+
+        if (!response.ok) {
+          const err = `HTTP ${response.status}`;
+          await logErrorEntity({
+            timestamp: new Date().toISOString(),
+            sourceId: 'employees',
+            sourceName: 'Employee Database',
+            operation: 'fetchContext',
+            attempt,
+            error: err,
+          });
+          throw new Error(err);
+        }
+
         const data = await response.json();
         const employees = data.status === 'success' ? data.data : [];
-        
-        if (employees.length === 0) return getFallbackEmployeeData();
 
-        const salaries = employees.map((e: any) => e.employee_salary);
-        const ages = employees.map((e: any) => e.employee_age);
-        
-        return `Current employee database contains ${employees.length} employees:
+        if (!employees || employees.length === 0) {
+          const fb = getFallbackEmployeeData();
+          await logErrorEntity({
+            timestamp: new Date().toISOString(),
+            sourceId: 'employees',
+            sourceName: 'Employee Database',
+            operation: 'fetchContext',
+            attempt,
+            notes: 'Empty employee list from API - returning fallback',
+            extra: { apiResponse: data }
+          });
+          return JSON.stringify({ noData: fb.noData, fallbackSummary: fb.summary });
+        }
 
-SAMPLE EMPLOYEES:
-${employees.slice(0, 5).map((emp: any) => 
-  `- ${emp.employee_name}: Age ${emp.employee_age}, Salary $${emp.employee_salary.toLocaleString()}`
-).join('\n')}
-${employees.length > 5 ? `... and ${employees.length - 5} more employees` : ''}
+        const salaries = employees.map((e: any) => Number(e.employee_salary) || 0);
+        const ages = employees.map((e: any) => Number(e.employee_age) || 0);
 
-STATISTICS:
-- Total Employees: ${employees.length}
-- Salary Range: $${Math.min(...salaries).toLocaleString()} - $${Math.max(...salaries).toLocaleString()}
-- Average Salary: $${Math.round(salaries.reduce((sum: number, sal: number) => sum + sal, 0) / salaries.length).toLocaleString()}
-- Age Range: ${Math.min(...ages)} - ${Math.max(...ages)} years
-- Average Age: ${Math.round(ages.reduce((sum: number, age: number) => sum + age, 0) / ages.length)} years
+        // Return structured JSON so downstream components (model and logs) can detect no-data
+        const payload = {
+          noData: false,
+          totalEmployees: employees.length,
+          sample: employees.slice(0, 5).map((emp: any) => ({ name: emp.employee_name, age: emp.employee_age, salary: emp.employee_salary })),
+          statistics: {
+            salaryRange: [Math.min(...salaries), Math.max(...salaries)],
+            averageSalary: Math.round(salaries.reduce((sum: number, sal: number) => sum + sal, 0) / salaries.length),
+            ageRange: [Math.min(...ages), Math.max(...ages)],
+            averageAge: Math.round(ages.reduce((sum: number, age: number) => sum + age, 0) / ages.length)
+          }
+        };
 
-TOP EARNERS:
-${[...employees].sort((a: any, b: any) => b.employee_salary - a.employee_salary).slice(0, 3).map((emp: any) => 
-  `- ${emp.employee_name}: $${emp.employee_salary.toLocaleString()}`
-).join('\n')}`;
+        return JSON.stringify(payload);
       } catch (error) {
+        // Log the error and if this was the last attempt, return structured fallback
+        await logErrorEntity({
+          timestamp: new Date().toISOString(),
+          sourceId: 'employees',
+          sourceName: 'Employee Database',
+          operation: 'fetchContext',
+          attempt,
+          error,
+        });
+
         if (attempt === maxRetries) {
           console.warn('Failed to fetch employee data after retries:', error);
-          return getFallbackEmployeeData();
+          const fb = getFallbackEmployeeData();
+          return JSON.stringify({ noData: fb.noData, fallbackSummary: fb.summary });
         }
         // Continue to next retry attempt
       }
     }
     
-    return getFallbackEmployeeData();
+    const fb = getFallbackEmployeeData();
+    return JSON.stringify({ noData: fb.noData, fallbackSummary: fb.summary });
   },
 
   getSuggestions: (): string[] => [

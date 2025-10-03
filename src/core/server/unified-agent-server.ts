@@ -120,7 +120,7 @@ export class UnifiedAgentServer {
         try {
           const resetCommands = ['new conversation', 'start fresh', 'clear chat', 'reset conversation', 'start new', 'clear context'];
           const isResetCommand = resetCommands.some(cmd => args.message.toLowerCase().includes(cmd));
-          
+
           if (isResetCommand) {
             const newConversationId = `${args.platform || 'web'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             return {
@@ -135,30 +135,33 @@ export class UnifiedAgentServer {
               reset: true
             };
           }
-          
-          const knowledgeContext = await knowledgeLibrary.enhanceMessage(args.message);
-          
+
+          // Delegate enhancement and continuation logic to processMessageBridge so the
+          // returned metadata matches what was actually used to produce and persist the
+          // assistant response (avoids double-enhancing and mismatched provenance).
           const response = await this.processMessageBridge({
-            content: knowledgeContext.enhancedMessage,
+            content: args.message,
             conversationId: args.conversationId || `mcp-${Date.now()}`,
             platform: args.platform || 'mcp',
             userId: 'mcp-user',
-            metadata: { 
-              source: 'mcp',
-              requestedProvider: args.aiProvider,
-              knowledgeSources: knowledgeContext.usedSources,
-              availableSuggestions: knowledgeContext.suggestions
-            },
+            metadata: { source: 'mcp', requestedProvider: args.aiProvider },
           });
+
+          // Normalize returned metadata keys and expose them to the caller
+          const md = response.metadata || {};
+          const knowledgeSources = md.knowledge_sources_used || md.knowledge_sources || [];
+          const suggestions = md.suggestions || md.availableSuggestions || [];
+          const enhanced = !!md.enhanced || (Array.isArray(knowledgeSources) && knowledgeSources.length > 0);
 
           return {
             content: response.content,
-            provider: response.metadata?.provider,
-            tokens: response.metadata?.tokens,
-            cost: response.metadata?.cost,
-            knowledge_sources_used: knowledgeContext.usedSources,
-            suggestions: knowledgeContext.suggestions,
-            enhanced: knowledgeContext.usedSources.length > 0,
+            provider: md.provider,
+            tokens: md.tokens,
+            cost: md.cost,
+            knowledge_sources_used: knowledgeSources,
+            suggestions,
+            enhanced,
+            conversationId: md.conversationId || (args.conversationId || undefined),
           };
         } catch (error) {
           console.error('\ud83d\udd27 Chat function error:', error);
@@ -235,39 +238,127 @@ export class UnifiedAgentServer {
         content: msg.content,
         timestamp: msg.timestamp
       }));
-      // Heuristic: short confirmations like "ok", "show", "." should be treated as continuations
-      const looksLikeContinuation = (text: string) => {
-        const trimmed = String(text || '').trim().toLowerCase();
-        if (!trimmed) return false;
-        if (trimmed.length <= 3) return ['ok', 'ok.', 'yes', 'y', 'yep', '👍', '.'].includes(trimmed);
-        return /^\.{1,3}$/.test(trimmed);
-      };
+      // Continuation decision is made using stored context and semantic overlap below.
 
-      // If this message is a short continuation, try to reuse last assistant's knowledge sources
+      // Decide whether to reuse previously stored knowledge sources (preferred) or run normal enhancement.
+      // Approach:
+      // 1. If the conversation context stores `lastKnowledgeSources`, prefer to use them for continuation.
+      // 2. Decide to treat this as a continuation when there is semantic overlap between the current user message and the last assistant content (word overlap),
+      //    or when the message is a short follow-up (few words) and there is prior knowledge available.
+      // This avoids brittle hard-coded short-phrase lists like just 'ok'.
       let enhancementContext = null as any;
       try {
-        const lastAssistant = recentMessages.slice().reverse().find(m => m.role === 'assistant');
-        const lastSources: string[] = lastAssistant?.metadata?.knowledge_sources_used || [];
-        if (looksLikeContinuation(params.content) && lastSources && lastSources.length > 0) {
-          // Force reuse the last known sources for logical continuation. Persist the IDs even if fetchContext returns empty.
-          params.metadata = params.metadata || {};
-          params.metadata.knowledgeSources = lastSources.slice();
+        params.metadata = params.metadata || {};
+        const storedLastKnowledge: string[] = (existingContext && existingContext.lastKnowledgeSources) || [];
+
+        // Gather previous assistant content from the conversation using stored message ids (if any)
+        const prevAssistantIds: string[] = (existingContext && existingContext.lastAssistantMessages) || [];
+        let prevAssistantText = '';
+        if (prevAssistantIds.length > 0 && Array.isArray(allMessages)) {
+          for (const id of prevAssistantIds) {
+            const m = (allMessages as any[]).find(x => x.id === id && x.role === 'assistant');
+            if (m && m.content) prevAssistantText += ' ' + String(m.content);
+          }
+        }
+
+        // Improved continuation detection using a cheap term-frequency cosine similarity
+        // to approximate semantic relatedness without provider embeddings. This is
+        // still lightweight and runs locally. If you later add provider embeddings
+        // we can prefer that path via aiProcessor/provider calls.
+        const tokenize = (s: string) => String(s || '').toLowerCase().split(/\W+/).filter(Boolean);
+
+        const buildTfVector = (tokens: string[]) => {
+          const freqs: Record<string, number> = {};
+          for (const t of tokens) freqs[t] = (freqs[t] || 0) + 1;
+          return freqs;
+        };
+
+        const dot = (a: Record<string, number>, b: Record<string, number>) => {
+          let sum = 0;
+          for (const k of Object.keys(a)) {
+            if (b[k]) sum += a[k] * b[k];
+          }
+          return sum;
+        };
+
+        const norm = (v: Record<string, number>) => {
+          let s = 0;
+          for (const k of Object.keys(v)) s += v[k] * v[k];
+          return Math.sqrt(s);
+        };
+
+        const currentTokens = tokenize(params.content);
+        const prevTokens = tokenize(prevAssistantText);
+        const currentVec = buildTfVector(currentTokens);
+        const prevVec = buildTfVector(prevTokens);
+        const denom = (norm(currentVec) * norm(prevVec)) || 1;
+        const cosine = denom ? dot(currentVec, prevVec) / denom : 0;
+
+        // Also keep the original cheap word-overlap as a fallback metric
+        const prevWordSet = new Set(prevTokens);
+        let overlap = 0;
+        for (const w of new Set(currentTokens)) if (prevWordSet.has(w)) overlap++;
+
+        // heuristics: consider continuation when cosine similarity crosses a low threshold
+        // or when there is non-zero overlap or the user message is very short and there
+        // was prior assistant content.
+  const cosineThreshold = Math.max(0, Number(process.env.CONTINUATION_COSINE_THRESHOLD ?? 0.12));
+  const isLikelyContinuation = (cosine >= cosineThreshold) || (overlap > 0) || (String(params.content || '').trim().length <= 20 && prevAssistantText.length > 0);
+
+        // compute which sources are relevant *right now* (fast check via isRelevant)
+        const contentLower = String(params.content || '').toLowerCase();
+        const allSources = knowledgeLibrary.getSources();
+        const relevantByFn = allSources
+          .filter(s => s.isEnabled && typeof s.isRelevant === 'function' && s.isRelevant(contentLower))
+          .map(s => s.id);
+
+        // Keyword-overlap fallback: some brief or informal messages may not pass isRelevant
+        // but will contain source keywords. Use that as a signal as well.
+        const keywordMatched = allSources
+          .filter(s => s.isEnabled && Array.isArray(s.keywords) && s.keywords.some(k => contentLower.includes(String(k || '').toLowerCase())))
+          .map(s => s.id);
+
+        const currentlyRelevant = Array.from(new Set([...relevantByFn, ...keywordMatched]));
+
+        // Only reuse stored knowledge when: we have stored IDs, the message is a likely continuation,
+        // and there are no currently relevant sources that would override the stored ones (or
+        // when the currently relevant set is fully contained in the stored set).
+        const canReuseStored = Array.isArray(storedLastKnowledge) && storedLastKnowledge.length > 0
+          && isLikelyContinuation
+          && (currentlyRelevant.length === 0 || currentlyRelevant.every(id => storedLastKnowledge.includes(id)));
+
+        // DEBUG: log continuation decision factors to help diagnose incorrect reuse
+        try {
+          console.log('🔎 continuation-check', {
+            conversationId: params.conversationId,
+            contentPreview: String(params.content).slice(0,60),
+            cosine: Number(cosine.toFixed(4)),
+            overlap,
+            cosineThreshold,
+            isLikelyContinuation,
+            storedLastKnowledge,
+            currentlyRelevant,
+            canReuseStored
+          });
+        } catch (e) {
+          /* best-effort logging */
+        }
+
+        if (canReuseStored) {
+          // reuse stored knowledge ids
+          params.metadata.knowledgeSources = storedLastKnowledge.slice();
           try {
-            enhancementContext = await knowledgeLibrary.enhanceWithSourceIds(params.content, lastSources);
-            // If enhanceWithSourceIds returned suggestions, attach them
+            enhancementContext = await knowledgeLibrary.enhanceWithSourceIds(params.content, storedLastKnowledge);
             params.metadata.availableSuggestions = enhancementContext.suggestions || [];
-            // If it reported usedSources, prefer that (but keep the forced lastSources as provenance)
             if (enhancementContext.usedSources && enhancementContext.usedSources.length > 0) {
               params.metadata.knowledgeSources = enhancementContext.usedSources;
             }
           } catch (e) {
-            // enhancement failed — we still persist the lastSources for provenance
             console.warn('enhanceWithSourceIds failed, persisting prior knowledge sources for continuation', e);
           }
         } else {
-          // fallback to normal enhancement when not a short continuation
+          // fallback to normal enhancement
           enhancementContext = await knowledgeLibrary.enhanceMessage(params.content);
-          params.metadata = params.metadata || {};
           params.metadata.knowledgeSources = enhancementContext.usedSources;
           params.metadata.availableSuggestions = enhancementContext.suggestions;
         }
@@ -275,11 +366,16 @@ export class UnifiedAgentServer {
         console.warn('Knowledge enhancement failed, continuing without enhancement', e);
       }
 
+      // Use the enhanced message (original + knowledge contexts) when available so
+      // the AI provider receives the fetched knowledge and can incorporate it in
+      // its response. Fallback to the raw user content when enhancement failed.
+      const modelInput = (enhancementContext && enhancementContext.enhancedMessage) ? enhancementContext.enhancedMessage : params.content;
+
       let response;
       try {
         response = await this.aiProcessor.processMessage(
           params.platform as any,
-          params.content,
+          modelInput,
           historyMessages,
           {
             conversationId: params.conversationId,

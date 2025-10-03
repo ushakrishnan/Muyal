@@ -85,11 +85,45 @@ export class KnowledgeLibrary {
 
     for (const source of relevantSources) {
       try {
-        const context = await source.fetchContext();
-        if (context) {
-          contextSections.push(`[${source.name.toUpperCase()} KNOWLEDGE BASE]\n${context}`);
-          suggestions.push(...source.getSuggestions());
-          usedSources.push(source.id);
+        const rawContext = await source.fetchContext();
+        if (rawContext) {
+          // Allow sources to return structured JSON (stringified) with a
+          // well-known shape. If JSON parse succeeds and contains a `noData`
+          // flag or structured fields, render a compact, model-friendly
+          // snippet so the model can answer specific numeric queries reliably.
+          let rendered = '';
+          try {
+            const parsed = typeof rawContext === 'string' ? JSON.parse(rawContext) : rawContext;
+            // Handle common structured shapes produced by sources
+            if (parsed && typeof parsed === 'object') {
+              if (parsed.noData === true && parsed.fallbackSummary) {
+                rendered = `Fallback data (source may be rate-limited):\n${parsed.fallbackSummary}`;
+              } else if (parsed.noData === false && typeof parsed.totalEmployees === 'number') {
+                const stats = parsed.statistics || {};
+                const sample = Array.isArray(parsed.sample) ? parsed.sample.map((s: any) => `- ${s.name}: Age ${s.age}, Salary $${s.salary}`).join('\n') : '';
+                rendered = `Total Employees: ${parsed.totalEmployees}\n` +
+                  (stats.salaryRange ? `Salary Range: $${stats.salaryRange[0]} - $${stats.salaryRange[1]}\n` : '') +
+                  (stats.averageSalary ? `Average Salary: $${stats.averageSalary}\n` : '') +
+                  (stats.ageRange ? `Age Range: ${stats.ageRange[0]} - ${stats.ageRange[1]}\n` : '') +
+                  (stats.averageAge ? `Average Age: ${stats.averageAge}\n` : '') +
+                  (sample ? `\nSAMPLE EMPLOYEES:\n${sample}` : '');
+              } else {
+                // Generic object -> pretty-print summary keys
+                rendered = Object.keys(parsed).slice(0, 10).map(k => `${k}: ${JSON.stringify(parsed[k])}`).join('\n');
+              }
+            } else {
+              rendered = String(rawContext);
+            }
+          } catch (e) {
+            // Not JSON - treat as raw text
+            rendered = String(rawContext);
+          }
+
+          if (rendered) {
+            contextSections.push(`[${source.name.toUpperCase()} KNOWLEDGE BASE]\n${rendered}`);
+            suggestions.push(...source.getSuggestions());
+            usedSources.push(source.id);
+          }
         }
       } catch (error) {
         console.warn(`Failed to fetch context from ${source.name}:`, error);
@@ -100,10 +134,13 @@ export class KnowledgeLibrary {
       enhancedMessage = `${originalMessage}\n\n${contextSections.join('\n\n')}\n\nPlease use this knowledge to provide accurate, data-driven responses. If the user is asking for specific information covered by these knowledge bases, reference the data directly.`;
     }
 
+    const uniqueSuggestions = [...new Set(suggestions)];
+    const topSuggestions = uniqueSuggestions.slice(0, 3);
+
     return {
       sources: relevantSources,
       enhancedMessage,
-      suggestions: [...new Set(suggestions)],
+      suggestions: topSuggestions,
       usedSources,
     };
   }
@@ -118,7 +155,8 @@ export class KnowledgeLibrary {
       }
     }
 
-    return [...new Set(suggestions)];
+    const unique = [...new Set(suggestions)];
+    return unique.slice(0, 3);
   }
 
   /**
@@ -137,11 +175,38 @@ export class KnowledgeLibrary {
       const source = this.sources.get(id);
       if (!source || !source.isEnabled) continue;
       try {
-        const context = await source.fetchContext();
-        if (context) {
-          contextSections.push(`[${source.name.toUpperCase()} KNOWLEDGE BASE]\n${context}`);
-          suggestions.push(...source.getSuggestions());
-          usedSources.push(source.id);
+        const rawContext = await source.fetchContext();
+        if (rawContext) {
+          let rendered = '';
+          try {
+            const parsed = typeof rawContext === 'string' ? JSON.parse(rawContext) : rawContext;
+            if (parsed && typeof parsed === 'object') {
+              if (parsed.noData === true && parsed.fallbackSummary) {
+                rendered = `Fallback data (source may be rate-limited):\n${parsed.fallbackSummary}`;
+              } else if (parsed.noData === false && typeof parsed.totalEmployees === 'number') {
+                const stats = parsed.statistics || {};
+                const sample = Array.isArray(parsed.sample) ? parsed.sample.map((s: any) => `- ${s.name}: Age ${s.age}, Salary $${s.salary}`).join('\n') : '';
+                rendered = `Total Employees: ${parsed.totalEmployees}\n` +
+                  (stats.salaryRange ? `Salary Range: $${stats.salaryRange[0]} - $${stats.salaryRange[1]}\n` : '') +
+                  (stats.averageSalary ? `Average Salary: $${stats.averageSalary}\n` : '') +
+                  (stats.ageRange ? `Age Range: ${stats.ageRange[0]} - ${stats.ageRange[1]}\n` : '') +
+                  (stats.averageAge ? `Average Age: ${stats.averageAge}\n` : '') +
+                  (sample ? `\nSAMPLE EMPLOYEES:\n${sample}` : '');
+              } else {
+                rendered = Object.keys(parsed).slice(0, 10).map(k => `${k}: ${JSON.stringify(parsed[k])}`).join('\n');
+              }
+            } else {
+              rendered = String(rawContext);
+            }
+          } catch (e) {
+            rendered = String(rawContext);
+          }
+
+          if (rendered) {
+            contextSections.push(`[${source.name.toUpperCase()} KNOWLEDGE BASE]\n${rendered}`);
+            suggestions.push(...source.getSuggestions());
+            usedSources.push(source.id);
+          }
         }
       } catch (error) {
         console.warn(`Failed to fetch context from ${id}:`, error);
@@ -153,10 +218,13 @@ export class KnowledgeLibrary {
       enhancedMessage = `${originalMessage}\n\n${contextSections.join('\n\n')}\n\nPlease use this knowledge to provide accurate, data-driven responses. If the user is asking for specific information covered by these knowledge bases, reference the data directly.`;
     }
 
+    const uniqueSuggestions = [...new Set(suggestions)];
+    const topSuggestions = uniqueSuggestions.slice(0, 3);
+
     return {
       sources: usedSources.map(id => this.sources.get(id)!).filter(Boolean) as KnowledgeSource[],
       enhancedMessage,
-      suggestions: [...new Set(suggestions)],
+      suggestions: topSuggestions,
       usedSources,
     };
   }
