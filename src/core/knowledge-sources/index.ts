@@ -1,32 +1,13 @@
 /**
  * Knowledge Sources Index
- * Central export point for all knowledge sources
+ *
+ * NOTE: this project now loads knowledge descriptors from JSON files under
+ * `src/core/knowledge-sources/knowledge-data`. The old TypeScript-based
+ * knowledge source modules were intentionally removed after migration to
+ * JSON descriptors. To preserve backward compatibility for code that
+ * imports `allKnowledgeSources`, we export an empty array here — the
+ * runtime loader (`loadKnowledgeFromDir`) will register JSON-based sources at
+ * startup instead.
  */
 
-// Individual exports
-export { employeeKnowledgeSource } from './employee-knowledge';
-export { companyKnowledgeSource } from './company-knowledge';
-export { weatherKnowledgeSource } from './weather-knowledge';
-export { systemKnowledgeSource } from './system-knowledge';
-export { dogKnowledgeSource } from './dog-knowledge';
-export { eldenRingKnowledgeSource } from './eldenring-knowledge';
-export { remoteEmployeeKnowledgeSource } from './remote-employee-knowledge';
-
-// Collect all sources for easy registration
-import { employeeKnowledgeSource } from './employee-knowledge';
-import { companyKnowledgeSource } from './company-knowledge';
-import { weatherKnowledgeSource } from './weather-knowledge';
-import { systemKnowledgeSource } from './system-knowledge';
-import { dogKnowledgeSource } from './dog-knowledge';
-import { eldenRingKnowledgeSource } from './eldenring-knowledge';
-import { remoteEmployeeKnowledgeSource } from './remote-employee-knowledge';
-
-export const allKnowledgeSources = [
-  employeeKnowledgeSource,
-  companyKnowledgeSource,
-  weatherKnowledgeSource,
-  systemKnowledgeSource,
-  dogKnowledgeSource,
-  eldenRingKnowledgeSource
-  , remoteEmployeeKnowledgeSource
-];
+export const allKnowledgeSources: any[] = [];

@@ -2,3 +2,12 @@
 {"timestamp":"2025-10-03T16:00:01.054Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":1,"notes":"Employee API rate limited, retrying in 2000ms (attempt 2/3)","extra":{}}
 {"timestamp":"2025-10-03T16:00:03.357Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":2,"notes":"Employee API rate limited, retrying in 4000ms (attempt 3/3)","extra":{}}
 {"timestamp":"2025-10-03T16:00:03.366Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":2,"notes":"Retries exhausted - returning fallback summary","extra":{}}
+{"timestamp":"2025-10-03T16:39:31.321Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":0,"notes":"Employee API rate limited, retrying in 1000ms (attempt 1/3)","extra":{}}
+{"timestamp":"2025-10-03T16:39:32.540Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":1,"notes":"Employee API rate limited, retrying in 2000ms (attempt 2/3)","extra":{}}
+{"timestamp":"2025-10-03T16:39:34.718Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":2,"notes":"Employee API rate limited, retrying in 4000ms (attempt 3/3)","extra":{}}
+{"timestamp":"2025-10-03T16:39:34.731Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":2,"notes":"Retries exhausted - returning fallback summary","extra":{}}
+{"timestamp":"2025-10-03T16:39:48.043Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":0,"notes":"Employee API rate limited, retrying in 1000ms (attempt 1/3)","extra":{}}
+{"timestamp":"2025-10-03T16:39:49.219Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":1,"notes":"Employee API rate limited, retrying in 2000ms (attempt 2/3)","extra":{}}
+{"timestamp":"2025-10-03T16:39:51.417Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":2,"notes":"Employee API rate limited, retrying in 4000ms (attempt 3/3)","extra":{}}
+{"timestamp":"2025-10-03T16:39:51.422Z","sourceId":"employees","sourceName":"Employee Database","operation":"fetchContext","attempt":2,"notes":"Retries exhausted - returning fallback summary","extra":{}}
+{"timestamp":"2025-10-03T21:06:03.350Z","sourceId":"test-src","operation":"test-op","error":"simulated","extra":{}}

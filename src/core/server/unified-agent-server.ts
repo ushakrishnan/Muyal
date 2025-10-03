@@ -3,6 +3,9 @@ import { AIProcessor } from '../ai/processor';
 import { A2ARegistry, A2ACommunicator, A2ACapabilityManager, AgentMetadata, A2AMessage, A2AResponse } from '../a2a/communication';
 import { knowledgeLibrary, KnowledgeSource } from '../knowledge/library';
 import { allKnowledgeSources } from '../knowledge-sources';
+import { loadKnowledgeFromDir } from '../knowledge-sources/json-loader';
+import path from 'path';
+import * as fs from 'fs';
 import { conversationMemory } from '../memory';
 import { ConversationMessage } from '../core-types';
 
@@ -57,13 +60,51 @@ export class UnifiedAgentServer {
     allKnowledgeSources.forEach((source: KnowledgeSource) => {
       knowledgeLibrary.registerSource(source);
     });
-    
-    console.log('\ud83d\udcda Knowledge Library initialized with', knowledgeLibrary.getSources().length, 'sources');
+
+    // Load file-based descriptors from data/knowledge (developer-authorable JSON descriptors)
+    try {
+      const preferred = path.join(process.cwd(), 'src', 'core', 'knowledge-sources', 'knowledge-data');
+      const fallback = path.join(process.cwd(), 'data', 'knowledge');
+      const dataDir = fs.existsSync(preferred) ? preferred : fallback;
+
+      // Build executor context: provide A2A communicator and Cosmos client if available
+      const executorCtx: any = {};
+      if (this.a2aCommunicator) executorCtx.a2aCommunicator = this.a2aCommunicator;
+
+      // Optional: create Cosmos client if env present
+      try {
+        const { CosmosClient } = require('@azure/cosmos');
+        // Accept either COSMOS_ENDPOINT/COSMOS_KEY or project-specific COSMOS_DB_ENDPOINT/COSMOS_DB_KEY
+        const cosmosEndpoint = process.env.COSMOS_ENDPOINT || process.env.COSMOS_DB_ENDPOINT;
+        const cosmosKey = process.env.COSMOS_KEY || process.env.COSMOS_DB_KEY;
+        if (cosmosEndpoint && cosmosKey) {
+          const cosmosDbName = process.env.COSMOS_DB || process.env.COSMOS_DB_DATABASE || 'muyal';
+          executorCtx.cosmosClient = new CosmosClient({ endpoint: cosmosEndpoint, key: cosmosKey });
+          executorCtx.cosmosDb = cosmosDbName;
+          console.log('⚠️ Connecting to local Cosmos emulator - temporarily disabling TLS verification for this process (NODE_TLS_REJECT_UNAUTHORIZED=0)');
+          process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        }
+      } catch (e) {
+        // ignore if @azure/cosmos isn't installed or env missing
+      }
+
+      const fileSources = loadKnowledgeFromDir(dataDir, executorCtx);
+      for (const s of fileSources) {
+        // ensure no id collision — register will overwrite by id
+        knowledgeLibrary.registerSource(s as any);
+      }
+      if (fileSources.length > 0) console.log('📚 Loaded', fileSources.length, 'file-based knowledge descriptors from', dataDir);
+    } catch (e) {
+      // best-effort: do not fail server startup due to missing or invalid descriptor files
+      console.warn('Failed to load file-based knowledge descriptors (data/knowledge) — continuing without them', e instanceof Error ? e.message : e);
+    }
+
+    console.log('📚 Knowledge Library initialized with', knowledgeLibrary.getSources().length, 'sources');
     // Subscribe to knowledge library changes to perform soft-resets when sources change
     knowledgeLibrary.onChange(async () => {
       try {
         const newVersion = knowledgeLibrary.getVersion();
-        console.log('\ud83d\udce1 Knowledge library changed — updating conversation contexts to version', newVersion);
+        console.log('📡 Knowledge library changed — updating conversation contexts to version', newVersion);
         // If provider supports listing conversations, iterate and soft-reset contexts where necessary
         if (conversationMemory.getAllConversations) {
           const all = await conversationMemory.getAllConversations();
@@ -229,6 +270,100 @@ export class UnifiedAgentServer {
         }
       });
 
+      // Fast-path: if the user is explicitly asking to list the agent's skills/capabilities,
+      // return the skills knowledge source directly without calling the LLM. This prevents
+      // the model from producing a long generic description and ensures the canonical
+      // skill list from Cosmos is returned.
+      try {
+  // Improved skill-intent detection: match common phrasings that request a list of
+  // skills/capabilities. The previous pattern missed many natural forms like
+  // "what can you do", "what are your skills", or "tell me what you can help with".
+  // Keep this check before enhancement so we can short-circuit to the canonical skills
+  // descriptor and avoid the LLM or a single-skill jump.
+  const skillIntent = /\b(?:list|show|display|tell me|give me|what can(?: you)?|what are|what do)\b[\s\S]{0,120}?(?:skill|skills|capabilities|abilities|what can you do|what can you help with|what do you do|what are your skills)\b/i;
+        if (skillIntent.test(String(params.content || ''))) {
+          const skillsSource = knowledgeLibrary.getSources().find(s => s.id === 'skills' && (s as any).isEnabled);
+          if (skillsSource) {
+            try {
+              const raw = await (skillsSource.fetchContext as any)();
+              let parsed: any = null;
+              try { parsed = JSON.parse(raw); } catch { parsed = null; }
+
+              // Prefer structured arrays from executors. If none returned, fall back to
+              // the descriptor's `fallbackSkills` so the fast-path is useful even when
+              // Cosmos isn't configured or returned no rows.
+              let listText = '';
+              let items: any[] | null = null;
+              if (Array.isArray(parsed)) {
+                items = parsed;
+              } else if (parsed && Array.isArray(parsed.items)) {
+                items = parsed.items;
+              } else if (typeof raw === 'string' && raw.trim().length > 0) {
+                // Human-friendly fallback when raw text is returned (e.g., 'No results found.')
+                listText = `Skills:\n\n${raw}`;
+              }
+              // If we didn't get anything useful from the executor, try descriptor fallbackSkills
+              if ((!items || items.length === 0) && (!listText || listText.trim().length === 0)) {
+                try {
+                  const fallback = (skillsSource as any).descriptor?.metadata?.fallbackSkills;
+                  if (Array.isArray(fallback) && fallback.length > 0) items = fallback;
+                } catch { /* ignore */ }
+              }
+              if (!listText && items) {
+                listText = 'Here are the available skills:\n\n' + items.map((it: any) => `- ${it.name || it.id}${it.description ? ': ' + it.description : ''}`).join('\n');
+              }
+
+              if (!listText) listText = 'No skills found.';
+
+              const assistantMessage = await conversationMemory.addMessage(params.conversationId, {
+                timestamp: new Date(),
+                role: 'assistant',
+                content: listText,
+                metadata: {
+                  provider: 'system',
+                  tokens: 0,
+                  knowledge_sources_used: ['skills'],
+                  suggestions: [],
+                  enhanced: true,
+                  platform: params.platform,
+                }
+              });
+
+              // update logical memory with the skills source
+              try {
+                const existingCtx = await conversationMemory.getContext(params.conversationId);
+                const prevIds: string[] = (existingCtx && existingCtx.lastAssistantMessages) || [];
+                const newIds = [...prevIds, assistantMessage.id].slice(-Math.max(1, Number(process.env.LOGICAL_MEMORY_ANSWER_COUNT || 2)));
+                await conversationMemory.updateContext(params.conversationId, {
+                  lastActivity: new Date(),
+                  lastAssistantMessages: newIds,
+                  lastKnowledgeSources: ['skills']
+                });
+              } catch (e) {
+                console.warn('Failed to update logical memory for skills fast-path', e);
+              }
+
+              return {
+                content: listText,
+                metadata: {
+                  provider: 'system',
+                  tokens: 0,
+                  knowledge_sources_used: ['skills'],
+                  suggestions: [],
+                  enhanced: true,
+                  conversationId: params.conversationId,
+                  messageId: assistantMessage.id
+                }
+              };
+            } catch (e) {
+              console.warn('Skills fast-path failed', e);
+            }
+          }
+        }
+      } catch (e) {
+        // non-fatal
+      }
+
   const allMessages = await conversationMemory.getConversation(params.conversationId);
   // MODEL_HISTORY_WINDOW controls how many recent messages are sent as chat history to the model
   const modelHistoryWindow = Math.max(1, Number(process.env.MODEL_HISTORY_WINDOW || 4));
@@ -385,6 +520,15 @@ export class UnifiedAgentServer {
         throw aiError;
       }
 
+      // Compose suggestions: prefer knowledge-library availableSuggestions when present,
+      // otherwise fall back to suggestions generated by the AI processor.
+      const computedSuggestions = (params.metadata?.availableSuggestions && params.metadata.availableSuggestions.length > 0)
+        ? params.metadata.availableSuggestions
+  : (response.suggestions || []);
+      // ensure metadata object exists and persist the resolved suggestions for downstream logic
+      params.metadata = params.metadata || {};
+      params.metadata.availableSuggestions = computedSuggestions;
+
       const assistantMessage = await conversationMemory.addMessage(params.conversationId, {
         timestamp: new Date(),
         role: 'assistant',
@@ -393,7 +537,7 @@ export class UnifiedAgentServer {
           provider: response.metadata?.provider,
           tokens: response.metadata?.tokens,
           knowledge_sources_used: params.metadata?.knowledgeSources || [],
-          suggestions: params.metadata?.availableSuggestions || [],
+          suggestions: computedSuggestions,
           enhanced: (params.metadata?.knowledgeSources && params.metadata.knowledgeSources.length > 0) || false,
           platform: params.platform,
         }
@@ -421,10 +565,28 @@ export class UnifiedAgentServer {
         metadata: {
           ...response.metadata,
           knowledge_sources_used: params.metadata?.knowledgeSources || [],
-          suggestions: params.metadata?.availableSuggestions || [],
+          // use the computed suggestions so we preserve the preference order
+          suggestions: params.metadata?.availableSuggestions ?? response.suggestions ?? [],
           enhanced: params.metadata?.knowledgeSources?.length > 0,
           conversationId: params.conversationId,
           messageId: assistantMessage.id,
+          // UI-friendly sources info: include descriptor id, name and any file/doc lists and lastSeeded timestamp if present
+          sources: (params.metadata?.knowledgeSources || []).map((srcId: string) => {
+            try {
+              const src = knowledgeLibrary.getSources().find(s => s.id === srcId);
+              if (!src) return { id: srcId };
+              return {
+                id: src.id,
+                name: (src as any).name,
+                provider: (src as any).provider,
+                files: (src as any).descriptor?.metadata?.filePath || (src as any).descriptor?.metadata?.docSources || undefined,
+                longDescription: (src as any).descriptor?.metadata?.longDescription,
+                lastSeeded: (src as any).descriptor?.metadata?.lastSeeded || (src as any).descriptor?.metadata?.seededAt || undefined,
+              };
+            } catch (e) {
+              return { id: srcId };
+            }
+          }),
         },
       };
     } catch (error) {

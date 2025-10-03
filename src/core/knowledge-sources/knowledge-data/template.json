@@ -1,0 +1,17 @@
+{
+  "id": "template",
+  "name": "Template Knowledge Source",
+  "description": "Template descriptor for creating new knowledge sources",
+  "keywords": ["template", "example", "sample"],
+  "priority": 30,
+  "enabled": true,
+  "provider": "static",
+  "static": {
+    "text": "TEMPLATE KNOWLEDGE: Use this descriptor as a starting point to author new knowledge sources. Replace this text with domain-specific content.",
+    "suggestions": ["Start here to author a new knowledge source", "What are the required fields for a descriptor?"]
+  }
+  ,
+  "metadata": {
+    "longDescription": "Title: Template Knowledge Source\n\nSummary: A template descriptor to use when creating new knowledge sources.\n\nWhat I can read: Descriptor-provided static content.\n\nWhat I can do: Serve as an example for required fields and suggestions.\n\nHow to ask: \"How do I create a new knowledge source?\"\n\nLimitations: Replace with domain-specific content before seeding in production."
+  }
+}

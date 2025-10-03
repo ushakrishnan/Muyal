@@ -1,0 +1,1949 @@
+Muyal Consolidated Documentation
+
+---- README.md ----
+
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Microsoft 365 Agents Toolkit](https://img.shields.io/badge/M365-Agents%20Toolkit-blue)](https://github.com/microsoft/teams-toolkit) [![Multi-AI](https://img.shields.io/badge/AI-Multi%20Provider-green)](#ai-providers) [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) ![Local AI](https://camo.githubusercontent.com/68105c95bf7650461ac95a0cdb3212d2693fa865dd382d43ecc4e550cab49f84/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4c6f63616c2d414925323052656164792d6f72616e6765) [![Azure](https://camo.githubusercontent.com/756ce985aae9dc4956426398d69a171aeae6331f1d9db81b2187f420594e0683/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f417a7572652d3030373844343f6c6f676f3d6d6963726f736f66742d617a757265266c6f676f436f6c6f723d7768697465)](https://azure.microsoft.com/) [![OpenAI](https://camo.githubusercontent.com/35e05fc08cfea42506c862f13a6d7f1b057c50c02ca7688057e29002b8e4b648/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4f70656e41492d3431323939313f6c6f676f3d6f70656e6169266c6f676f436f6c6f723d7768697465)](https://openai.com/) [![Anthropic](https://camo.githubusercontent.com/62a1b34db891ee5c3b14b750da774ea431a5333a5fd9933d26b6e32d8b93d539/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f416e7468726f7069632d436c617564652d464636423335)](https://www.anthropic.com/) [![W&B](https://camo.githubusercontent.com/6b479ada7dc538fab3643365c695f77d0f454122c287609ee7e7f6ddfc2f52ef53/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f57253236422d57656176652d4646424530303f6c6f676f3d77656967687473616e64626961736573266c6f676f436f6c6f723d626c61636b)](https://wandb.ai/) [![Ollama](https://camo.githubusercontent.com/5d332d6d579d963a5249c399ae3f5a2066b367f3c73c34b58b2027f3c3c9d1db/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4f6c6c616d612d4c6f63616c25323041492d303030303030)](https://ollama.ai/) [![REST API](https://camo.githubusercontent.com/3a3fec3adb43d645289ac973fab140cd097957f54d0cf47f73cf72e63688bc61/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f524553542d4150492d303235363942)](http://localhost:3978/api) [![Storage: Cosmos & FS](https://img.shields.io/badge/Storage-Cosmos%20%7C%20Filesystem-blueviolet)](docs/SETUP_AND_USAGE.md#storage-and-memory)
+
+**Muyal** is an enterprise-grade **intelligence hub** designed to unify your organization’s knowledge and AI capabilities into a **single source of truth** . Muyal is at its base [CEA](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/build-custom-engine-agents-in-ai-foundry-for-microsoft-365-copilot/4449623) (Microsoft Custom Engine Agent) and enables seamless integration across Microsoft 365, web platforms, and many other agent networks—delivering **context-aware, intelligent responses** wherever your users work.
+
+At its core, Muyal combines **templated knowledge sources** with **infinite extensibility** , ensuring that new domains can be added effortlessly and instantly leveraged across all connected channels. With **Model Context Protocol (MCP)** support and **Agent-to-Agent (A2A)** communication, Muyal doesn’t just serve as a knowledge engine—it becomes the **central nervous system** of your AI ecosystem, powering collaboration between tools, agents, and people.
+
+## 🐰 Why "Muyal"? (The Rabbit Story)
+"Muyal" means "Rabbit" in Tamil language - and there's a delightful reason behind this choice!
+
+Just like rabbits, this AI agent is:
+
+* ⚡ Lightning Fast: Hops between AI providers faster than you can say "ChatGPT"
+* 🔄 Multi-Platform: Jumps seamlessly from Teams to Web to Slack (like rabbits hopping between gardens)
+* 🌱 Reproduces Quickly: One codebase, infinite platform adaptations (rabbits are known for... well, you know)
+* 👂 Always Listening: Those big ears aren't just for show - ready to respond on any platform
+* 🏠 Adaptable: Comfortable in any environment - cloud, local, enterprise, or your garage server
+* 🥕 Loves Good Food: Feeds on quality prompts and delivers even better responses
+
+Plus, "Muyal" sounds way cooler than "GenericAIBot2024" and definitely more professional than "RabbitGPT" 😄
+
+**Fun Fact:** In Tamil folklore, rabbits are considered clever problem-solvers who find creative solutions - exactly what this AI agent does when routing between 6 different AI providers! 
+
+## Features
+
+* **Single Source of Truth**: One backend intelligence system that serves Microsoft 365, MCP clients, web interfaces, and agent networks
+* **Automatic Knowledge Enhancement**: Contextually aware responses without manual commands or data lookup - built on the [Microsoft CEA pattern](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/build-custom-engine-agents-in-ai-foundry-for-microsoft-365-copilot/4449623)
+* **Templated Knowledge Sources**: Copy-paste template system for adding new knowledge domains - each new source instantly works across all platforms
+* **MCP Integration**: Native Model Context Protocol server that exposes capabilities to Claude Desktop, VS Code, and any MCP client
+* **Agent-to-Agent (A2A)**: Automatic agent discovery, registration, and inter-agent communication for building intelligent networks
+* **Universal Platform Support**: Same intelligence engine powers Teams, Web, Slack, Discord, APIs, and custom integrations
+* **Conversation Memory**: Persistent chat history with smart reset commands ("new conversation", "start fresh")
+* **Multi-AI Provider Support**: Switch between Azure OpenAI, OpenAI, Anthropic, Google AI, and local models
+* **Enterprise Observability**: W&B Weave integration for logging metrics, visualizing model performance, and monitoring experiments in real time
+
+## Special Feature: Intelligence Extension through Templated Knowledge Source
+
+**The Problem**: Adding new knowledge to AI systems traditionally requires:
+* Platform-specific integrations for each channel (Teams, Web, Slack, etc.)
+* Custom API endpoints and authentication per knowledge source
+* Separate configuration for different AI providers
+* Manual updates across multiple systems
+
+**The Solution:** Muyal makes adding *Your Knowledge Domain* easy by using templated ways of adding knowledge sources.
+1. Copy `template-knowledge.ts`
+2. Define relevance keywords/patterns
+3. Connect to your data source (API, database, files)
+4. Add helpful suggestions
+5. Drop it into knowledge sources folder
+6. **Result**: Instantly works across all platforms and agent networks
+
+## What is Muyal? (Simple Explanation)
+
+**Muyal is like having a super-smart AI assistant that learns about anything you teach it, then works across every app you use.** You can teach it about weather, sports, homework, gaming stats, crypto prices - literally any topic. Just connect it to websites, spreadsheets, or documents, and it automatically knows when to use that information. The magic? Add a new "knowledge source" in 5 minutes using copy-and-paste, and instantly it becomes smarter about that topic everywhere - Teams, websites, other AI tools, all at once.
+
+**Even cooler: Muyal creates AI teams that work together.** Think "group chat for AI assistants" - Muyal connects specialized AI helpers (weather bot, sports bot, homework helper) so they share information and coordinate. Build your own AI for anything you care about (tracking concerts, school projects), and it automatically joins the network, talking and collaborating with Muyal and all other AI helpers.
+
+## 🔧 Recent Updates & Latest Features
+
+###  **Conversation Memory System** 
+- **Persistent History**: All conversations automatically saved with full context across sessions
+- **Smart Context**: AI remembers previous discussions to provide better responses
+- **Storage options**: Conversations can be persisted to local JSON files for development or to Azure Cosmos DB for scalable production storage.
+- **Logical memory & tuning**: Configurable persistence of messages and their knowledge source IDs for lightweight provenance and continuations.
+
+###  **Smart Conversation Reset**
+- **Natural Commands**: Type "new conversation", "start fresh", "clear chat", or "reset conversation" 
+- **Clean Slate**: Instantly start with fresh context and clear knowledge source accumulation
+- **UI Integration**: "Clear Chat" button properly resets conversation with new ID
+
+###  **Enhanced Web Interface**
+- **Markdown Support**: Images and formatting render properly in chat
+- **Knowledge Sources Display**: See which sources enhanced each response
+- **Improved UX**: Visual indicators and better conversation flow
+
+###  **Development Environment Fixes**
+- **Nodemon Configuration**: No more auto-restarts when writing conversation files
+- **Stable Development**: Proper ignore patterns for data directories
+- **Debug Logging**: Enhanced troubleshooting capabilities
+
+##  Quick Start & Usage Examples
+
+### **Employee Lookup Example:**
+- **You ask**: "Who is John in marketing?"
+- **Muyal**: Automatically queries employee database → "John Smith is a Marketing Manager in the Digital team, based in Seattle. Contact: john.smith@company.com"
+
+### **Weather & Context:**
+- **You ask**: "Should I bring an umbrella today?"
+- **Muyal**: Checks weather API → "Yes! There's a 70% chance of rain in your area today with showers expected this afternoon."
+
+### **Gaming Help:**
+- **You ask**: "Best strategy for Margit in Elden Ring?"
+- **Muyal**: Pulls from game wiki → "Margit is weak to bleed damage. Use Spirit Ash summons and attack his ankles. Key items: Margit's Shackle from Patches..."
+
+### **Fun Content:**
+- **You ask**: "Show me a cute dog"
+- **Muyal**: Fetches from Dog API → Displays random dog image with breed information
+
+### **Conversation Reset:**
+- **You type**: "new conversation" 
+- **Muyal**: " **Started a new conversation!** Your chat history has been cleared and we're starting fresh. How can I help you?"
+
+##  Documentation
+
+| Document | Purpose |
+|----------|---------|
+| **[SETUP_AND_USAGE.md](docs/SETUP_AND_USAGE.md)** | Installation, configuration, AI providers |
+| **[CAPABILITIES.md](docs/CAPABILITIES.md)** | Functions, MCP integration, examples |
+| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System design, extending knowledge sources |
+| **[MCP_A2A_INTEGRATION.md](docs/MCP_A2A_INTEGRATION.md)** | Protocol details, agent networks |
+| **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** | Common issues and solutions |
+
+## Observability & Telemetry
+
+Muyal supports local and Cosmos DB-backed telemetry. Observability in the codebase writes metrics and errors to two sinks:
+
+How writes are triggered
+- The server attaches a CosmosClient during bootstrap only when COSMOS endpoint/key are present. That client is injected into knowledge descriptor metadata so executors can call observability with the runtime client. If the client is not attached, telemetry is still written to the local JSONL files, but no DB writes occur.
+
+## Tech stack
+
+* **Runtime**: Node.js + TypeScript with enterprise-grade error handling and observability
+* **AI Providers**: Azure OpenAI, Azure AI Foundry, OpenAI, Anthropic Claude, Google AI, Ollama (local models)
+* **Microsoft 365**: Teams Toolkit integration with Custom Engine Agent (CEA) pattern
+* **MCP Protocol**: Native Model Context Protocol server for Claude Desktop, VS Code, and external integrations
+* **A2A Network**: Agent discovery, registration, and inter-agent communication system
+* **Observability**: W&B Weave tracing with cost tracking and performance analytics across all channels
+* **Storage**: Filesystem JSON (local) or Azure Cosmos DB (production) — configurable via `MEMORY_PROVIDER` and `COSMOS_*` env vars
+* **Development**: Nodemon with smart file watching, TypeScript compilation, hot reload
+
+##  Contributing
+
+[](https://github.com/ushakrishnan/muyal#-contributing)
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+##  License
+
+[](https://github.com/ushakrishnan/muyal#-license)
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/ushakrishnan/Muyal/blob/master/LICENSE) file for details.
+
+##  Support
+
+*  Check the [Setup Guide](docs/SETUP_AND_USAGE.md) for installation help
+*  View [Current Capabilities](docs/CAPABILITIES.md) for function reference
+*  Create an issue for bugs or feature requests
+
+---
+
+**Ready to get started?** Let's go!! 🚀
+
+
+
+---- docs\ARCHITECTURE.md ----
+
+# 🏗️ Muyal Custom Engine Agent (CEA) - Architecture
+
+## Custom Engine Agent (CEA) Pattern
+
+Muyal implements the **Custom Engine Agent (CEA)** pattern using the **Microsoft 365 Agents SDK**. This architecture allows you to integrate your existing multi-agent AI application into Microsoft 365 Copilot without adding extra orchestration layers.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Platform Interfaces                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
+│  │ Microsoft   │  │   Web App   │  │   Slack     │  │   Discord   │ │
+│  │     365     │  │             │  │             │  │             │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+              │              │              │              │
+              ▼              ▼              ▼              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Platform Adapters                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
+│  │ M365Adapter │  │ WebAdapter  │  │SlackAdapter │  │DiscordAdapter│ │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Core Business Logic                          │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │               ConversationHandler                       │    │
+│  │  ┌─────────────────────────────────────────────────┐    │    │
+│  │  │             AIProcessor                        │    │    │
+│  │  └─────────────────────────────────────────────────┘    │    │
+│  └─────────────────────────────────────────────────────────┐    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    AI Provider Layer                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
+│  │   OpenAI    │  │ Anthropic   │  │Azure OpenAI│  │ Google AI   │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │
+│  ┌─────────────┐  ┌─────────────┐                                │ │
+│  │ Azure AI    │  │   Ollama    │                                │ │
+│  │  Foundry    │  │   (Local)   │                                │ │
+│  └─────────────┘  └─────────────┘                                │ │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  Observability Layer                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
+│  │   Metrics   │  │   Logging   │  │ User Feedback│ │ Cost Track  │ │
+│  │  Tracking   │  │   Service   │  │   Collection │ │  & Health   │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │           W&B/LangFuse Provider Integration             │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Core Components
+
+### 1. Platform Adapters (`src/adapters/`)
+
+**Purpose**: Handle platform-specific message formats and authentication
+
+**Location**: `src/adapters/base/`, `src/adapters/microsoft365/`, `src/adapters/web/`
+
+**Key Features**:
+- **Unified Interface**: All adapters implement `PlatformAdapter` interface
+- **Message Transformation**: Convert platform messages to internal format
+- **Template System**: `_template/` folder for creating new adapters
+- **Registry Pattern**: Automatic adapter discovery and registration
+
+### 2. Conversation Handler (`src/core/conversation-handler.ts`)
+
+**Purpose**: Central processing unit for all conversations
+
+**Key Features**:
+- **Platform Agnostic**: Works with any adapter
+- **AI Provider Routing**: Selects appropriate AI provider per platform
+- **Context Management**: Maintains conversation state and history
+- **Error Handling**: Graceful fallbacks and error recovery
+
+### 3. AI Provider System (`src/core/providers/`)
+
+**Purpose**: Abstracted AI provider interface with multiple implementations
+
+**Available Providers**:
+- **OpenAI**: `openai-provider.ts` - GPT-4o, GPT-4, GPT-3.5
+- **Anthropic**: `anthropic-provider.ts` - Claude-3 Sonnet, Haiku
+- **Azure OpenAI**: `azure-openai-provider.ts` - Enterprise GPT models
+- **Google AI**: `google-ai-provider.ts` - Gemini Pro, Flash
+- **Azure AI Foundry**: `azure-ai-foundry-provider.ts` - Open models (hosted/local)
+- **Ollama**: `ollama-provider.ts` - Local AI models
+
+### 4. Services Layer (`src/services/`)
+
+**Purpose**: Shared business logic and utilities
+
+**Components**:
+- **Analytics Service**: Usage tracking and metrics
+- **Formatting Service**: Message formatting and templates
+- **Validation Service**: Input validation and sanitization
+- **Observability Service**: AI metrics tracking, cost monitoring, user feedback collection
+  - **W&B Provider**: Weights & Biases integration with free tier support
+  - **Provider Abstraction**: Easy switching between observability solutions
+  - **Health Monitoring**: Real-time AI provider status tracking
+  - **Cost Estimation**: Track spending across all AI providers
+
+### 5. Unified Entry Point (`src/index.ts`)
+
+**Purpose**: Single entry point with integrated API endpoints and server setup
+
+**Available Endpoints**:
+- **Chat API**: `/api/chat` - Direct chat interface
+- **Health Check**: `/api/health` - System health status  
+- **AI Configuration**: `/api/ai/config` - Current AI settings
+- **AI Health**: `/api/ai/health` - AI provider status
+- **User Feedback**: `/api/feedback` - Collect user feedback on AI responses
+- **Analytics**: `/api/analytics` - Usage and performance metrics
+- **Conversation Management**: `/api/conversation/:id` - History and management
+- **Static Assets**: Serves web interface and API documentation
+
+## Design Patterns
+
+### 1. Adapter Pattern
+```typescript
+abstract class PlatformAdapter {
+  abstract async handleMessage(message: any): Promise<ConversationResult>;
+  abstract async sendResponse(response: string, context: any): Promise<void>;
+}
+```
+
+### 2. Registry Pattern
+```typescript
+class AdapterRegistry {
+  static register(name: string, adapter: PlatformAdapter): void;
+  static get(name: string): PlatformAdapter | undefined;
+  static getAll(): Map<string, PlatformAdapter>;
+}
+```
+
+### 3. Provider Pattern
+```typescript
+interface AIProvider {
+  generateResponse(message: string, context: AIContext): Promise<string>;
+  getHealth(): Promise<ProviderHealth>;
+  validateConfig(): boolean;
+}
+```
+
+### 4. Configuration Pattern
+```typescript
+class AIConfiguration {
+  static getProviderForPlatform(platform: string): string;
+  static initializeProviders(): Map<string, AIProvider>;
+  static validateConfiguration(): ConfigValidation;
+  static getObservability(): ObservabilityProvider;
+}
+```
+
+### 5. Observability Pattern
+```typescript
+abstract class ObservabilityProvider {
+  abstract async logAIRequest(metrics: AIRequestMetrics): Promise<void>;
+  abstract async logUserFeedback(feedback: UserFeedback): Promise<void>;
+  abstract async getProviderHealth(): Promise<ProviderHealthStatus>;
+  abstract async flush(): Promise<void>;
+}
+```
+
+## Data Flow
+
+### 1. Message Processing Flow
+```
+User Message → Platform Interface → Platform Adapter → Conversation Handler → AI Processor → AI Provider → Response
+```
+
+### 1.5 Knowledge Enhancement Flow (detailed)
+```
+User Message → Continuation check (lastKnowledgeSources + cheap TF cosine) → knowledgeLibrary.enhanceMessage / enhanceWithSourceIds → fetchContext() calls to selected executors → aggregated enhancedMessage + suggestions → modelInput (enhancedMessage or original) → AI Processor
+```
+
+Notes:
+- Continuation logic prefers reusing previously stored `lastKnowledgeSources` when the current user message is a likely continuation (cheap cosine similarity / overlap heuristics) and there are no overriding currentlyRelevant sources.
+- The knowledge library collects suggestions from each used source and returns a de-duped top-3 list. At response composition time the server prefers knowledge-sourced suggestions and falls back to AI-generated suggestions when enhancement produced none.
+
+### 2. AI Provider Selection Flow
+```
+Platform Context → Configuration Lookup → Provider Selection → Fallback Chain → Health Check → AI Call
+```
+
+### 3. Error Handling Flow
+```
+Error Occurs → Error Classification → Fallback Provider → Retry Logic → Graceful Degradation → User Notification
+```
+
+### 4. Observability Data Flow
+```
+AI Request → Metrics Collection → Provider Logging → Dashboard Update → Cost Tracking → Health Monitoring
+```
+
+### 5. User Feedback Flow
+```
+User Interaction → Feedback Collection → Quality Rating → Observability Logging → Analytics Dashboard
+```
+
+### Executor / Knowledge Source Runtime (new)
+
+Purpose: Provide a small, pluggable executor model that runs knowledge-source descriptors (JSON) through a provider-specific executor implementation. Executors allow knowledge sources to be defined declaratively and executed by a thin runtime with injected clients (A2A communicator, Cosmos client, etc.).
+
+Location: `src/core/knowledge-sources/` including `ensure-ks.ts`, `executor-factory.ts`, `types.ts`, and per-provider executor implementations (static, http, remote, etc.).
+
+Key points:
+- Knowledge sources are authored as JSON descriptors and loaded at startup (developer-authorable under `data/knowledge/` or `src/.../knowledge-data`).
+- `ensureKnowledgeSource` converts a descriptor into a runtime `KnowledgeSource` by wiring an executor from `getExecutorFor(desc, ctx)` and injecting runtime context (for example `cosmosClient` or `a2aCommunicator`) into `desc.metadata` so executors can use shared clients without API churn.
+- Executors return a normalized result shape { text, structured?, metadata? } where `structured` is preferred (JSON) and `metadata.raw` may hold legacy structured data. The `fetchContext()` wrapper in `ensure-ks` prefers `structured` → `metadata.raw` → `text` when producing context injected into prompts.
+- Executors also expose `getSuggestions()` which the knowledge library aggregates.
+
+Why this matters:
+- The descriptor + executor model separates data (what to fetch) from behavior (how to fetch it). It makes adding new source types trivial and keeps runtime wiring minimal.
+
+## Key Benefits
+
+### 1. **Modularity**
+- Each component has a single responsibility
+- Easy to test individual components
+- Clear dependencies and interfaces
+
+### 2. **Extensibility**
+- Add new platforms using adapter template
+- Add new AI providers implementing interface
+- Add new services without core changes
+
+### 3. **Flexibility**
+- Platform-specific AI provider configuration
+- Fallback chains for reliability
+- Environment-driven configuration
+
+### 4. **Maintainability**
+- Organized folder structure
+- Consistent naming conventions
+- Clear separation of concerns
+
+### 5. **Scalability**
+- Horizontal scaling through adapter instances
+- AI provider load balancing
+- Async/await throughout
+
+## Storage & Memory Design
+
+Muyal separates two memory concepts which are configurable:
+
+- Model history: the short sequence of recent turns sent to the LLM when generating a response. Controlled by `MODEL_HISTORY_WINDOW` (default: 4). Smaller windows reduce token usage; larger windows increase context but cost more.
+- Logical memory / provenance: a small persistent set of recent assistant responses and the knowledge source IDs they used. Controlled by `LOGICAL_MEMORY_ANSWER_COUNT` (default: 10). This is stored on the conversation context and used for continuation seeding and lightweight provenance.
+
+Storage backends:
+- Filesystem: local JSON files under `./data/conversations/` (development default).
+- Azure Cosmos DB: production-ready document store (enable by setting `MEMORY_PROVIDER=cosmos` and providing `COSMOS_ENDPOINT` / `COSMOS_KEY`). The Cosmos provider persists messages and conversation contexts and supports efficient queries for analytics.
+
+Observability & telemetry sinks:
+- Local JSONL files are written reliably for development and offline diagnostics (examples: `logs/error-entities.jsonl`, `logs/metrics.jsonl`).
+- When configured with a Cosmos client (attached at startup or injected into executor context), observability attempts best-effort upserts into Cosmos. Two containers are used by convention:
+  - `errors` — error / exception records
+  - `logs` — metric / request logs
+- The Cosmos helper performs create-if-not-exists semantics for the database and containers before upserting documents. Partition key usage is currently `/id` (pragmatic default); consider a more selective partition key for production throughput.
+- Exceptions during Cosmos creation or upsert are logged as warnings and do not block request processing. Unit tests may log a warning when using mocked clients that don't implement `createIfNotExists`.
+
+Knowledge versioning & soft-reset:
+- The knowledge library exposes a `knowledgeVersion` value. When knowledge sources are added/removed or toggled, the version is bumped. The unified server subscribes to these changes and performs a soft-reset across active conversations — clearing cached `lastKnowledgeSources` and updating `knowledgeVersion` in conversation contexts to avoid using stale provenance.
+
+These controls let operators tune cost vs. recall and ensure provenance accuracy when the knowledge base changes.
+
+## Configuration System
+
+### Environment-Driven Setup
+```bash
+# Platform Mappings
+M365_AI_PROVIDER=azure-openai-default
+WEB_AI_PROVIDER=anthropic-default
+SLACK_AI_PROVIDER=google-ai-default
+
+# Provider Configurations  
+AZURE_OPENAI_API_KEY=your-key
+ANTHROPIC_API_KEY=your-key
+GOOGLE_AI_API_KEY=your-key
+
+# Observability Configuration
+WANDB_ENABLED=true
+WANDB_API_KEY=your-wandb-key
+WANDB_PROJECT=muyal-ai-agent
+WANDB_ENTITY=your-team
+WANDB_TAGS=production,ai-agent
+```
+
+### Dynamic Provider Selection
+- **Primary Provider**: Configured per platform
+- **Fallback Provider**: Used when primary fails
+- **Health Monitoring**: Automatic provider health checks
+- **Load Balancing**: Round-robin for multiple instances
+
+## Security Architecture
+
+### 1. **API Key Management**
+- Environment variable storage
+- No hardcoded credentials
+- Secure configuration loading
+
+### 2. **Request Validation**
+- Input sanitization
+- Rate limiting support
+- Authentication hooks
+
+### 3. **Local AI Privacy**
+- Ollama for offline processing
+- Azure AI Foundry local mode
+- No data leaves local network
+
+### 4. **Audit Trail**
+- Request/response logging
+- Error tracking
+- Usage analytics
+
+### 5. **Observability Security**
+- Secure metrics collection
+- Privacy-compliant user feedback
+- Cost monitoring and alerting
+- Provider health status tracking
+
+## Future Extensions
+
+### 1. **New Platforms**
+```bash
+src/adapters/telegram/
+src/adapters/whatsapp/
+src/adapters/api/
+```
+
+### 2. **Additional AI Providers**
+```bash
+src/core/providers/cohere-provider.ts
+src/core/providers/huggingface-provider.ts
+src/core/providers/aws-bedrock-provider.ts
+```
+
+### 3. **Enhanced Services**
+```bash
+src/services/caching-service.ts
+src/services/translation-service.ts
+src/services/moderation-service.ts
+src/services/observability/prometheus-provider.ts
+src/services/observability/datadog-provider.ts
+src/services/observability/custom-provider.ts
+```
+
+### 4. **Advanced Observability**
+```bash
+src/services/observability/langfuse-provider.ts
+src/services/observability/lunary-provider.ts
+src/services/observability/helicone-provider.ts
+src/services/analytics/advanced-metrics.ts
+src/services/analytics/cost-optimization.ts
+```
+
+## 📁 Knowledge Sources Architecture
+
+Knowledge sources provide automatic intelligence enhancement through modular data integration.
+
+### File Organization
+```
+src/core/knowledge-sources/
+├── index.ts                   # Central export point
+├── employee-knowledge.ts      # Employee database integration
+├── company-knowledge.ts       # Company policies & information  
+├── weather-knowledge.ts       # Weather data & forecasts
+├── system-knowledge.ts        # Agent capabilities & help
+└── template-knowledge.ts      # Template for new sources
+```
+
+### Knowledge Source Interface & Descriptor Model
+Knowledge sources are authored as JSON descriptors and then converted into a runtime `KnowledgeSource` via `ensureKnowledgeSource(desc, ctx)`.
+
+Runtime shape (summary):
+```typescript
+type KnowledgeSource = {
+  id: string;
+  name: string;
+  keywords: string[];
+  isEnabled: boolean;
+  isRelevant: (message: string) => boolean;
+  fetchContext: (ctx?: { conversationId?: string }) => Promise<string>;
+  getSuggestions?: () => string[];
+  descriptor: KnowledgeDescriptorT;
+}
+```
+
+Descriptor-to-runtime notes:
+- `ensureKnowledgeSource` attaches any runtime clients from the loader (for example `cosmosClient` or `a2aCommunicator`) into `desc.metadata` so executors can access them.
+- `fetchContext()` is a thin wrapper that executes the configured executor and normalizes the returned value to a string (preferring `structured` JSON when present, else `metadata.raw`, else `text`).
+- `isRelevant()` uses keywords, name substring match, and small-token fuzzy matching (Levenshtein-based) to be resilient to typos and short queries.
+- `getSuggestions()` defaults to `desc.metadata?.suggestions ?? []` but executors or specific sources can supply dynamic suggestions.
+
+### Automatic Enhancement Process
+1. **Message Analysis**: Incoming messages analyzed for relevant keywords
+2. **Source Selection**: Appropriate knowledge sources called based on relevance  
+3. **Context Injection**: Retrieved data seamlessly injected into AI prompt
+4. **Enhanced Response**: AI generates response with rich contextual information
+
+### Priority System
+- **90-100**: Critical business data (employee records, financial data)
+- **70-89**: Important organizational info (policies, procedures)
+- **50-69**: Helpful utilities (weather, system info)
+- **30-49**: Nice-to-have features
+
+### Adding New Knowledge Sources
+1. Copy `template-knowledge.ts` as starting point
+2. Implement interface methods with your data logic
+3. Define keywords and priority level (90+ for critical business data)
+4. Export from index.ts for automatic registration
+5. Test with sample conversations
+
+### Benefits
+- **Zero Learning Curve**: Users chat naturally without special commands
+- **Contextual Intelligence**: Responses enhanced with live, relevant data
+- **Scalable Architecture**: Easy to add unlimited knowledge domains
+- **Real-time Data**: Always current information from live sources
+- **Cross-Platform**: Same intelligence works in M365, MCP, Web, APIs
+
+---
+
+This architecture ensures **scalability**, **maintainability**, and **extensibility** while providing a **consistent experience** across all platforms and AI providers.
+
+
+---- docs\SETUP_AND_USAGE.md ----
+
+# 🚀 Muyal Setup & Usage Guide
+
+## Overview
+
+Muyal is a Custom Engine Agent (CEA) with templated knowledge sources that serves as a single source of truth across Microsoft 365, MCP clients, web interfaces, and agent networks. This guide covers setup, configuration, and current capabilities.
+
+## 🎯 Supported AI Providers
+
+| Provider | Models | Strengths | Best For |
+|----------|--------|-----------|----------|
+| **OpenAI** | GPT-4o, GPT-4, GPT-3.5 | Versatile, reliable, function calling | General purpose, enterprise |
+| **Anthropic** | Claude-3 Sonnet, Haiku | Safety, reasoning, long context | Creative writing, analysis |
+| **Azure OpenAI** | GPT-4o, GPT-4 | Enterprise compliance, data residency | Corporate environments |
+| **Google AI** | Gemini Pro, Flash | Fast, cost-effective, multimodal | Quick responses, high volume |
+| **Azure AI Foundry** | Llama 2, Code Llama, Mistral, Phi-3 | Hosted & local, open models | Flexibility, compliance |
+| **Ollama** | Llama 3.2, Mistral, CodeLlama | Local, private, no API costs | Privacy, offline, development |
+
+## 📊 Provider Comparison Matrix
+
+| Provider | Speed | Cost | Privacy | Offline | Enterprise | Code Generation |
+|----------|-------|------|---------|---------|------------|----------------|
+| **OpenAI** | ⚡⚡⚡ | 💰💰💰💰 | 🔒 | ❌ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Anthropic** | ⚡⚡⚡ | 💰💰💰 | 🔒🔒 | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **Azure OpenAI** | ⚡⚡⚡ | 💰💰💰💰 | 🔒🔒🔒 | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Google AI** | ⚡⚡⚡⚡ | 💰💰 | 🔒 | ❌ | ⭐⭐⭐ | ⭐⭐⭐ |
+| **Azure AI Foundry** | ⚡⚡⚡ | 💰💰💰 | 🔒🔒 | ❌ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **Ollama (Local)** | ⚡⚡ | 💰 | 🔒🔒🔒🔒 | ✅ | ⭐⭐ | ⭐⭐⭐⭐ |
+
+## 🚀 Quick Start
+
+### 1. Clone and Install
+```bash
+git clone <repository-url>
+cd Muyal
+npm install
+```
+
+### 2. Configure Environment
+```bash
+cp env/.env.example .env
+# Edit .env with your preferred AI provider credentials
+```
+
+### 3. Choose Your Setup
+
+#### Option A: Enterprise Setup (Recommended)
+```bash
+# Use Azure OpenAI for compliance and reliability
+AZURE_OPENAI_API_KEY=your-key-here
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
+
+# Set platform mappings
+M365_AI_PROVIDER=azure-openai-default
+WEB_AI_PROVIDER=azure-openai-default
+```
+
+#### Option B: Multi-Provider Setup (Flexibility)
+```bash
+# Different providers for different platforms
+OPENAI_API_KEY=your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+GOOGLE_AI_API_KEY=your-google-key
+
+# Platform-specific mappings
+M365_AI_PROVIDER=azure-openai-default      # Enterprise compliance
+WEB_AI_PROVIDER=anthropic-default          # Creative conversations
+SLACK_AI_PROVIDER=google-ai-default        # Fast responses
+```
+
+#### Option C: Privacy-First Setup (Local AI)
+```bash
+# Install Ollama: https://ollama.ai/
+# Pull a model: ollama pull llama3.2:3b
+
+OLLAMA_ENABLED=true
+OLLAMA_MODEL=llama3.2:3b
+
+# Use local AI for all platforms
+M365_AI_PROVIDER=ollama-default
+WEB_AI_PROVIDER=ollama-default
+```
+
+### 4. Start the Application
+```bash
+npm start
+```
+
+## 🌐 Available Interfaces
+
+- **Web Chat**: http://localhost:3978
+- **Microsoft 365**: Available via Teams/Copilot integration
+- **API Endpoints**: 
+  - Chat: `POST /api/chat`
+  - Health: `GET /api/health`
+  - AI Config: `GET /api/ai/config`
+  - AI Health: `GET /api/ai/health`
+
+## ⚙️ Configuration Guide
+
+### Provider-Specific Settings
+
+**OpenAI:**
+```bash
+OPENAI_API_KEY=sk-your-key-here
+OPENAI_MODEL=gpt-4o                    # or gpt-4, gpt-3.5-turbo
+OPENAI_TEMPERATURE=0.7                 # 0.0-2.0
+OPENAI_MAX_TOKENS=1000                 # Response length limit
+```
+
+**Azure OpenAI:**
+```bash
+AZURE_OPENAI_API_KEY=your-key
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+```
+
+**W&B Observability:**
+```bash
+WANDB_ENABLED=true
+WANDB_API_KEY=your-wandb-key
+WANDB_PROJECT=muyal-ai-agent
+WANDB_ENTITY=your-username
+WANDB_TAGS=production,ai-monitoring
+```
+
+**Anthropic:**
+```bash
+ANTHROPIC_API_KEY=sk-ant-your-key
+ANTHROPIC_MODEL=claude-3-sonnet-20240229 # or claude-3-haiku-20240307
+```
+
+**Google AI:**
+```bash
+GOOGLE_AI_API_KEY=your-google-key
+GOOGLE_AI_MODEL=gemini-pro              # or gemini-pro-vision
+```
+
+**Azure AI Foundry:**
+```bash
+# Hosted
+AZURE_AI_FOUNDRY_ENDPOINT=https://your-foundry.azureml.net/
+AZURE_AI_FOUNDRY_API_KEY=your-key
+AZURE_AI_FOUNDRY_MODEL_NAME=Llama-2-7b-chat-hf
+
+# Local
+AZURE_AI_FOUNDRY_LOCAL=true
+AZURE_AI_FOUNDRY_ENDPOINT=http://localhost:8080
+```
+
+**Ollama:**
+```bash
+OLLAMA_ENABLED=true
+OLLAMA_ENDPOINT=http://localhost:11434
+OLLAMA_MODEL=llama3.2:3b               # or mistral, codellama, etc.
+```
+
+### Platform Mappings
+
+Configure different AI providers for different platforms:
+
+```bash
+# Enterprise: Use Azure OpenAI for compliance
+M365_AI_PROVIDER=azure-openai-default
+M365_AI_FALLBACK_PROVIDER=azure-ai-foundry-default
+
+# Web: Use creative AI for better conversations
+WEB_AI_PROVIDER=anthropic-default
+WEB_AI_FALLBACK_PROVIDER=openai-default
+
+# Slack: Use fast AI for quick responses
+SLACK_AI_PROVIDER=google-ai-default
+SLACK_AI_FALLBACK_PROVIDER=ollama-default
+```
+
+## Storage and Memory
+
+Muyal now supports two persistent conversation storage backends: the existing filesystem JSON store and an Azure Cosmos DB provider. Both are configured via environment variables and are swappable at runtime using the memory provider selection in the configuration.
+
+- Filesystem (default): stores conversation documents under `./data/conversations/` as JSON files. Great for local development and quick testing.
+- Azure Cosmos DB (recommended for production): a scalable document store used for long-lived conversation persistence and analytics. When running locally, the Cosmos emulator is supported for tests.
+
+Configuration (examples):
+
+Filesystem (local dev):
+```bash
+MEMORY_PROVIDER=filesystem
+# Conversations will be written to ./data/conversations/
+```
+
+Cosmos DB (production / dev with emulator):
+```bash
+MEMORY_PROVIDER=cosmos
+COSMOS_ENDPOINT=https://localhost:8081/            # or your Cosmos endpoint
+COSMOS_KEY=your_cosmos_key_here
+COSMOS_DATABASE=muyal
+COSMOS_CONTAINER=conversations
+```
+
+Memory behavior and tuning
+- LOGICAL_MEMORY_ANSWER_COUNT (default 10): How many of the most recent assistant responses (and their knowledge source IDs) are kept as logical memory in the conversation context. This is used for lightweight provenance and continuation seeding.
+- MODEL_HISTORY_WINDOW (default 4): How many recent messages (user+assistant) are sent directly to the LLM as chat history. Use this to balance token cost vs. context.
+
+Continuations & Provenance
+- Short follow-ups (e.g., "ok", "show me", small confirmations) are treated as continuations and the last assistant's knowledge source IDs are reseeded into enhancement parameters so the reply can reuse the previously retrieved knowledge.
+- The knowledge library includes a `knowledgeVersion` that is bumped whenever sources are added/removed or toggled. The server subscribes to changes and performs a soft-reset on conversation contexts (clearing cached lastKnowledgeSources) to avoid stale provenance.
+
+See `README.md` Storage badge and the Architecture doc for more details.
+
+## 🎯 Use Case Examples
+
+### Enterprise Setup
+```bash
+# Maximum compliance and reliability
+AZURE_OPENAI_API_KEY=your-key
+M365_AI_PROVIDER=azure-openai-default
+WEB_AI_PROVIDER=azure-openai-default
+```
+
+### Development Team
+```bash
+# Code-optimized with local fallback
+OPENAI_API_KEY=your-key
+OLLAMA_ENABLED=true
+OLLAMA_MODEL=codellama:13b
+WEB_AI_PROVIDER=openai-default
+SLACK_AI_PROVIDER=ollama-default
+```
+
+### Privacy-First Organization
+```bash
+# All processing stays local
+OLLAMA_ENABLED=true
+OLLAMA_MODEL=llama3.2:11b
+AZURE_AI_FOUNDRY_LOCAL=true
+M365_AI_PROVIDER=ollama-default
+WEB_AI_PROVIDER=azure-ai-foundry-default
+```
+
+### Cost-Conscious Startup
+```bash
+# Minimize cloud costs
+GOOGLE_AI_API_KEY=your-key
+OLLAMA_ENABLED=true
+OLLAMA_MODEL=mistral
+WEB_AI_PROVIDER=google-ai-default
+SLACK_AI_PROVIDER=ollama-default
+```
+
+## 🔧 Local AI Setup
+
+### Ollama Installation
+
+**Windows:**
+1. Download from https://ollama.ai/
+2. Run installer
+3. Open terminal and run: `ollama pull llama3.2:3b`
+
+**macOS:**
+```bash
+brew install ollama
+ollama pull llama3.2:3b
+```
+
+**Linux:**
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+ollama pull llama3.2:3b
+```
+
+### Recommended Ollama Models
+
+| Model | Size | Best For | Speed |
+|-------|------|----------|-------|
+| `llama3.2:3b` | 3B | General use, fast responses | ⚡⚡⚡⚡ |
+| `mistral` | 7B | Balanced performance | ⚡⚡⚡ |
+| `codellama:13b` | 13B | Code generation | ⚡⚡ |
+| `llama3.2:11b` | 11B | High quality responses | ⚡⚡ |
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+**No AI providers available:**
+```bash
+# Check your .env file has at least one provider configured
+# Verify API keys are correct
+npm start  # Look for provider initialization logs
+```
+
+**Ollama not responding:**
+```bash
+# Check if Ollama is running
+ollama list
+# Start Ollama service
+ollama serve
+# Pull a model if none exist
+ollama pull llama3.2:3b
+```
+
+**Azure OpenAI authentication error:**
+```bash
+# Verify endpoint format
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+# Check deployment name matches Azure portal
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
+```
+
+**W&B not collecting data:**
+```bash
+# Check if W&B is enabled
+echo $WANDB_ENABLED
+# Verify API key is set
+wandb status
+# Check logs for W&B initialization
+npm start | grep -i wandb
+```
+
+### Health Monitoring
+
+Check AI provider status:
+```bash
+curl http://localhost:3978/api/ai/health
+```
+
+View current configuration:
+```bash
+curl http://localhost:3978/api/ai/config
+```
+
+## 📝 API Reference
+
+### Chat API
+```bash
+POST /api/chat
+Content-Type: application/json
+
+{
+  "message": "Hello, how are you?",
+  "conversationId": "user-123"
+}
+```
+
+### User Feedback API
+```bash
+POST /api/feedback
+Content-Type: application/json
+
+{
+  "conversationId": "user-123",
+  "rating": 5,
+  "feedback": "Great response!",
+  "platform": "web"
+}
+```
+
+### Health Check
+```bash
+GET /api/health
+# Returns: {"status": "ok", "timestamp": "..."}
+```
+
+### AI Provider Health
+```bash
+GET /api/ai/health
+# Returns health status of all configured providers
+```
+
+### AI Configuration
+```bash
+GET /api/ai/config
+# Returns current AI configuration and available providers
+```
+
+## 🔒 Security Best Practices
+
+1. **API Keys**: Store in environment variables, never in code
+2. **Local AI**: Use Ollama or local Azure AI Foundry for sensitive data
+3. **Network**: Restrict API access to trusted networks
+4. **Monitoring**: Enable logging and monitor AI provider usage
+5. **Fallbacks**: Configure fallback providers for reliability
+
+## 🎯 Performance Optimization
+
+1. **Model Selection**: Use faster models for high-volume scenarios
+2. **Local AI**: Use Ollama for development and testing
+3. **Caching**: Implement response caching for repeated queries
+4. **Token Limits**: Set appropriate max_tokens for cost control
+5. **Platform Matching**: Use optimal providers per platform
+
+## � Observability & Monitoring
+
+Muyal includes built-in **Weights & Biases (W&B)** observability for comprehensive AI monitoring.
+
+### Quick W&B Setup (5 minutes)
+```bash
+# 1. Sign up at wandb.ai (free tier available)
+# 2. Get your API key from wandb.ai/authorize
+# 3. Add to your .env:
+WANDB_ENABLED=true
+WANDB_API_KEY=your-wandb-api-key-here
+WANDB_PROJECT=muyal-ai-agent
+```
+
+### What You'll Monitor Automatically
+- 📊 **AI Requests**: Every provider interaction tracked
+- 💰 **Cost Analytics**: Spending per provider/platform
+- ⚡ **Performance**: Response times and error rates
+- 🏥 **Provider Health**: Real-time availability monitoring
+- 👤 **User Feedback**: Quality ratings and satisfaction
+- 🎯 **Usage Patterns**: Popular features and platforms
+
+### Beautiful Dashboards Include
+1. **Provider Performance**: Response times, error rates, cost comparison
+2. **Usage Analytics**: Requests by platform, conversation patterns
+3. **Cost Optimization**: Spending trends and optimization recommendations
+4. **User Experience**: Satisfaction scores and engagement metrics
+
+### Environment Configuration
+```bash
+# Basic setup (recommended)
+WANDB_ENABLED=true
+WANDB_API_KEY=your-wandb-api-key
+WANDB_PROJECT=muyal-ai-agent
+
+# Advanced setup
+WANDB_ENTITY=your-team-name
+WANDB_TAGS=production,multi-llm,monitoring
+WANDB_NOTES=Multi-provider AI agent observability
+```
+
+### Alternative Observability
+The system uses a clean abstraction layer, making it easy to switch or add:
+- **LangFuse** (open source)
+- **Custom providers** 
+- **Multiple providers** simultaneously
+- **Disable**: Set `WANDB_ENABLED=false`
+
+## 🚀 Development & Startup
+
+### Startup Scripts
+
+| Command | Description | Best For |
+|---------|-------------|----------|
+| `npm start` | **Recommended**: PowerShell script with validation and cleanup | Most users |
+| `npm run start:muyal-simple` | Batch script opening separate windows | Windows users who prefer visual confirmation |
+| `npm run dev` | Development mode with hot reload | Development and testing |
+
+### PowerShell Script Features
+- **Process cleanup**: Terminates existing Node.js processes
+- **Configuration validation**: Checks for at least one AI provider
+- **Dual startup**: Starts both M365 playground and web interface
+- **Progress feedback**: Clear status messages and URLs
+- **Configurable options**: Verbose logging and cleanup control
+
+### Development Commands
+```bash
+# Development with hot reload
+npm run dev
+
+# Build TypeScript
+npm run build
+
+# Test configuration
+npm run test-config
+
+# Watch mode (restart on changes)
+npm run watch
+```
+
+### Startup Troubleshooting
+- **PowerShell execution policy**: Use `npm start` (bypasses policy)
+- **Port conflicts**: Check `.env` for custom PORT setting
+- **Configuration errors**: Verify at least one AI provider is configured
+- **Process conflicts**: Scripts automatically clean up existing processes
+
+---
+
+**Need Help?** Check the health endpoints, review logs, or validate your environment configuration.
+
+
+---- docs\CAPABILITIES.md (missing) ----
+
+
+---- docs\TROUBLESHOOTING.md (missing) ----
+
+
+---- docs\MCP_A2A_INTEGRATION.md ----
+
+# MCP and A2A Integration Guide for Custom Engine Agents
+
+This guide shows you **exactly what your Muyal agent can do right now** with **Model Context Protocol (MCP)** and **Agent-to-Agent (A2A)** communication, plus how to extend it with custom functions.
+
+## 📋 **TL;DR: What You Get Today**
+
+✅ **11 working functions** that Claude Desktop can call right now  
+✅ **2 main functions**: `chat` (talk to your agent) and `about_usha_krishnan` (creator info)  
+✅ **9 system functions**: weather, time, health, agent network capabilities  
+✅ **Your agent is an MCP Server** - it exposes functions to MCP clients like Claude Desktop  
+✅ **A2A ready** - can communicate with other agents in a network  
+
+**Quick test:** `npm start` → Configure Claude Desktop → Ask Claude to use the `about_usha_krishnan` function
+
+## 🎯 Why CEA + MCP Integration Matters
+
+### 🔄 **One Agent, Multiple Interfaces** (vs. Building Separate Systems)
+
+**Without MCP Integration:**
+```
+Claude Desktop ──────► Custom MCP Server #1
+Microsoft 365 ──────► Custom CEA Agent #2  
+Web Interface ──────► Custom API Server #3
+Slack Bot ─────────► Custom Bot #4
+
+Result: 4 separate codebases, 4x maintenance, 4x deployments
+```
+
+**With CEA + MCP Integration:**
+```
+Claude Desktop ┌─────────────────────┐
+Microsoft 365 │                        │
+Web Interface │    Your Muyal CEA        │ ◄── One codebase
+Slack Bot     │  (Universal Backend)   │     One deployment  
+Other Agents  └─────────────────────┘     One configuration
+
+Result: 1 agent handles all platforms, shared logic, unified data
+```
+
+### 🕰️ **Response Time Advantages**
+
+| Function Type | Traditional Approach | CEA+MCP Approach | Speed Gain |
+|---------------|---------------------|------------------|------------|
+| **AI Chat** | Client → API → OpenAI → Response | Client → CEA → Cached Provider → Response | ~200ms faster |
+| **Static Data** | Client → Database → Query → Response | Client → CEA → Memory → Response | ~500ms faster |
+| **System Info** | Client → API → Server Query → Response | Client → CEA → Runtime State → Response | ~300ms faster |
+| **Multi-Agent** | Client → Orchestrator → Agent → Response | Client → CEA → Direct A2A → Response | ~400ms faster |
+
+### 🔒 **Security & Configuration Benefits**
+
+**Single Point of Control:**
+- **API Keys**: One place to manage OpenAI, Azure, Anthropic keys
+- **Authentication**: One auth system for all platforms
+- **Rate Limiting**: Centralized throttling across all clients
+- **Audit Logging**: All interactions logged in one place
+- **Error Handling**: Consistent error responses across platforms
+
+### 📊 **Data Flow Examples**
+
+**Static Data (`about_usha_krishnan`):**
+```
+Claude Desktop ──MCP──► CEA ──JSON──► Instant Response
+                       │
+                       └─── No external calls
+                            No database queries
+                            Sub-10ms response
+```
+
+**AI Processing (`chat`):**
+```
+Claude Desktop ──MCP──► CEA ───────────── OpenAI/Azure API
+                       │                        │
+                       ├─ Provider selection       │
+                       ├─ Rate limiting           │
+                       ├─ Conversation context    │
+                       └─ Response processing ◄───┘
+```
+
+**Agent Network (`call_agent`):**
+```
+Claude Desktop ──MCP──► CEA (Hub) ──A2A──► Sales Agent
+                       │                    │
+                       ├────────────────────┘
+                       │                     
+                       └─A2A─► Marketing Agent
+                                 │
+                                 └─► Support Agent
+```
+
+## 🚀 Quick Start: Connect Claude Desktop Right Now
+
+### Step 1: Start Your Muyal Agent
+```bash
+# Start with MCP enabled (default)
+npm start
+```
+
+### Step 2: Configure Claude Desktop
+Add this to your Claude Desktop MCP configuration file:
+
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "muyal": {
+      "command": "node",
+      "args": ["C:\\Usha\\UKRepos\\Muyal\\lib\\src\\integrations\\mcp-server.js"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
+```
+
+### Step 3: Test in Claude Desktop
+Try these prompts in Claude Desktop:
+
+**"Use the about_usha_krishnan function to tell me about the creator of this agent"**
+**"Use the chat function to ask the agent: What can you help me with?"**
+
+### What You'll See
+Claude Desktop will show it has access to **11 tools** from your Muyal agent:
+- ✅ `chat` - Your main agent interaction
+- ✅ `about_usha_krishnan` - Info about Usha Krishnan
+- ✅ `get_weather` - Weather information  
+- ✅ `get_time` - Time/date functions
+- ✅ `health` - System monitoring
+- ✅ Plus 6 more system and A2A functions
+
+### Alternative Startup Options
+```bash
+# Full capabilities (MCP + A2A)
+npm run start:full
+
+# Basic agent only (no MCP/A2A)
+npm run start:basic
+
+# Test MCP integration
+npm run test:mcp
+```
+
+## Memory & Storage (MCP interactions)
+
+When Muyal handles MCP function calls (including `chat`), conversation state and message history are persisted using the configured memory provider. For local testing the filesystem store is used by default; in production you can select `MEMORY_PROVIDER=cosmos` to persist to Azure Cosmos DB.
+
+Short follow-ups from MCP clients may be treated as continuations — the server can reseed the enhancement process with the last assistant's knowledge source IDs so follow-ups remain coherent without expensive re-queries.
+
+## 🔧 Function Categories: Different Response Types
+
+Your Muyal agent showcases **4 different types of functions** with **4 different response mechanisms**:
+
+### 🤖 **AI-Powered Functions** (Response: Live AI Processing)
+1. **`chat`** - Forwards message to your configured AI provider (OpenAI/Azure/Anthropic)
+   ```
+   Response Source: → AI Provider API → Real-time AI response
+   Example: "What are AI trends?" → GPT-4/Claude generates answer
+   ```
+
+### 📄 **Static Data Functions** (Response: Pre-configured Information)
+2. **`about_usha_krishnan`** - Returns hardcoded professional information
+   ```
+   Response Source: → Static JSON data → Instant structured response
+   Example: LinkedIn, GitHub, expertise areas (no API calls)
+   ```
+
+### 🌐 **External API Functions** (Response: Third-party Services)
+3. **`get_weather`** - Mock weather data (shows API integration pattern)
+   ```
+   Response Source: → External Weather API → Live weather data
+   Note: Currently mocked, easily replaceable with real API
+   ```
+
+### 🔧 **System Introspection Functions** (Response: Runtime System State)
+4. **`health`** - Checks your agent's internal state
+5. **`get_system_info`** - Agent platform, memory, capabilities
+6. **`get_time`** - System time with timezone processing
+7. **`list_providers`** - Available AI providers in your configuration
+8. **`switch_provider`** - Changes active AI provider dynamically
+   ```
+   Response Source: → Runtime inspection → Current system state
+   Example: Memory usage, uptime, active AI provider
+   ```
+
+### 🤖 **Agent Network Functions** (Response: Multi-Agent Coordination)
+9. **`list_agents`** - Agents registered in A2A network
+10. **`call_agent`** - Send request to specific agent, get response
+11. **`broadcast`** - Send message to all agents, collect responses
+    ```
+    Response Source: → Agent Network → Coordinated responses
+    Example: Query sales agent, get lead qualification results
+    ```
+
+## 🏢 Enterprise Deployment Patterns
+
+### Microsoft 365 Integration
+```typescript
+// SharePoint integration
+registerFunction({
+  name: 'search_sharepoint',
+  description: 'Search SharePoint documents and sites',
+  handler: async (args) => {
+    const results = await graphAPI.search({
+      entityTypes: ['driveItem'],
+      query: args.searchQuery,
+      site: args.siteId
+    });
+    return results;
+  }
+});
+
+// Teams integration
+registerFunction({
+  name: 'create_teams_meeting',
+  description: 'Schedule Teams meetings with agenda',
+  handler: async (args) => {
+    const meeting = await graphAPI.calendar.events.create({
+      subject: args.title,
+      start: args.startTime,
+      end: args.endTime,
+      attendees: args.attendees,
+      onlineMeeting: {
+        provider: 'teamsForBusiness'
+      }
+    });
+    return meeting;
+  }
+});
+```
+
+### Security and Compliance
+```typescript
+// Secure function with authentication
+registerFunction({
+  name: 'access_sensitive_data',
+  description: 'Access sensitive business data with security checks',
+  parameters: {
+    type: 'object',
+    properties: {
+      dataType: { type: 'string' },
+      accessReason: { type: 'string' },
+      userContext: { type: 'object' }
+    },
+    required: ['dataType', 'accessReason', 'userContext']
+  },
+  handler: async (args) => {
+    // Security validation
+    const hasAccess = await securityManager.validateAccess(
+      args.userContext,
+      args.dataType
+    );
+    
+    if (!hasAccess) {
+      throw new Error('Access denied: Insufficient permissions');
+    }
+    
+    // Audit logging
+    await auditLogger.log({
+      action: 'data_access',
+      user: args.userContext.userId,
+      dataType: args.dataType,
+      reason: args.accessReason,
+      timestamp: new Date()
+    });
+    
+    // Retrieve and return data
+    return await secureDataStore.get(args.dataType);
+  }
+});
+```
+
+### Performance and Monitoring
+```typescript
+// Function with performance monitoring
+registerFunction({
+  name: 'complex_analysis',
+  description: 'Perform complex data analysis with monitoring',
+  handler: async (args) => {
+    const startTime = Date.now();
+    
+    try {
+      // Your complex logic here
+      const result = await performComplexAnalysis(args.data);
+      
+      // Log successful execution
+      await metricsCollector.recordSuccess({
+        functionName: 'complex_analysis',
+        executionTime: Date.now() - startTime,
+        dataSize: args.data.length
+      });
+      
+      return result;
+    } catch (error) {
+      // Log errors for monitoring
+      await metricsCollector.recordError({
+        functionName: 'complex_analysis',
+        error: error.message,
+        executionTime: Date.now() - startTime
+      });
+      
+      throw error;
+    }
+  }
+});
+```
+
+## 📋 Best Practices
+
+### Function Design Guidelines
+1. **Clear Naming**: Use descriptive, action-oriented function names
+2. **Type Safety**: Always define comprehensive parameter schemas
+3. **Error Handling**: Implement proper error handling and user-friendly messages
+4. **Documentation**: Provide detailed descriptions for all functions and parameters
+5. **Security**: Validate inputs and implement proper access controls
+
+### Agent Network Design
+1. **Single Responsibility**: Each agent should have a focused, well-defined purpose
+2. **Loose Coupling**: Agents should communicate through well-defined interfaces
+3. **Fault Tolerance**: Design for agent failures and network partitions
+4. **Scalability**: Consider horizontal scaling and load distribution
+5. **Monitoring**: Implement comprehensive logging and monitoring
+
+### Development Workflow
+```bash
+# 1. Develop and test functions locally
+npm run test:mcp
+
+# 2. Test agent communication
+npm run mcp
+
+# 3. Deploy to staging environment
+npm run start:full
+
+# 4. Monitor and iterate
+# Check logs, metrics, and user feedback
+```
+
+## � Adding Custom Functions
+
+### Simple Function Registration
+```typescript
+import { registerFunction } from './integrations/mcp-a2a-addon';
+
+// Add a custom business function
+registerFunction({
+  name: 'get_customer_info',
+  description: 'Retrieve customer information from CRM',
+  parameters: {
+    type: 'object',
+    properties: {
+      customerId: {
+        type: 'string',
+        description: 'Customer ID to lookup'
+      }
+    },
+    required: ['customerId']
+  },
+  handler: async (args) => {
+    // Your business logic here
+    const customer = await crm.getCustomer(args.customerId);
+    return {
+      id: customer.id,
+      name: customer.name,
+      status: customer.status,
+      lastContact: customer.lastContact
+    };
+  }
+});
+```
+
+### Database Integration Example
+```typescript
+registerFunction({
+  name: 'query_sales_data',
+  description: 'Query sales database with natural language',
+  parameters: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description: 'Natural language query about sales data'
+      },
+      dateRange: {
+        type: 'string',
+        description: 'Date range for the query (e.g., "last 30 days")'
+      }
+    },
+    required: ['query']
+  },
+  handler: async (args) => {
+    // Convert natural language to SQL
+    const sql = await nlToSql(args.query, args.dateRange);
+    const results = await salesDatabase.query(sql);
+    
+    return {
+      query: args.query,
+      results: results,
+      summary: await generateSummary(results)
+    };
+  }
+});
+```
+
+### Workflow Automation Example
+```typescript
+registerFunction({
+  name: 'create_support_ticket',
+  description: 'Create and route support tickets automatically',
+  parameters: {
+    type: 'object',
+    properties: {
+      title: { type: 'string', description: 'Ticket title' },
+      description: { type: 'string', description: 'Detailed description' },
+      priority: { type: 'string', enum: ['low', 'medium', 'high', 'urgent'] },
+      category: { type: 'string', description: 'Ticket category' }
+    },
+    required: ['title', 'description']
+  },
+  handler: async (args) => {
+    // Auto-categorize and route
+    const category = await aiCategorizer.categorize(args.description);
+    const assignee = await routingEngine.findBestAgent(category, args.priority);
+    
+    const ticket = await ticketSystem.create({
+      ...args,
+      category,
+      assignedTo: assignee,
+      status: 'open'
+    });
+    
+    // Notify relevant agents
+    await broadcast('ticket_created', {
+      ticketId: ticket.id,
+      category,
+      priority: args.priority
+    });
+    
+    return {
+      ticketId: ticket.id,
+      status: 'created',
+      assignedTo: assignee,
+      estimatedResolution: await getEstimatedResolution(category, args.priority)
+    };
+  }
+});
+```
+
+## 🤖 Building Multi-Agent Networks
+
+### Specialized Agent Architecture
+```typescript
+// Create specialized agents for different domains
+class SalesAgent extends BaseAgent {
+  constructor() {
+    super('sales-agent', {
+      capabilities: ['lead_qualification', 'pricing', 'proposal_generation'],
+      description: 'Specialized agent for sales processes'
+    });
+  }
+  
+  async qualifyLead(leadData) {
+    const score = await this.calculateLeadScore(leadData);
+    const recommendations = await this.generateRecommendations(score);
+    
+    // Notify marketing agent if lead needs nurturing
+    if (score < 70) {
+      await this.callAgent('marketing-agent', 'nurture_lead', {
+        leadId: leadData.id,
+        score,
+        recommendations
+      });
+    }
+    
+    return { score, recommendations };
+  }
+}
+
+class MarketingAgent extends BaseAgent {
+  constructor() {
+    super('marketing-agent', {
+      capabilities: ['campaign_management', 'lead_nurturing', 'content_creation'],
+      description: 'Specialized agent for marketing activities'
+    });
+  }
+  
+  async nurtureLead(leadData) {
+    const campaign = await this.selectNurturingCampaign(leadData.score);
+    const content = await this.generatePersonalizedContent(leadData);
+    
+    return await this.executeCampaign(campaign, content, leadData);
+  }
+}
+```
+
+### Agent Coordination Patterns
+```typescript
+// Workflow coordination between agents
+class WorkflowOrchestrator {
+  async processCustomerInquiry(inquiry) {
+    // Step 1: Classify the inquiry
+    const classification = await this.callAgent(
+      'nlp-agent', 
+      'classify_intent', 
+      { text: inquiry.content }
+    );
+    
+    // Step 2: Route to appropriate specialist
+    let response;
+    switch (classification.intent) {
+      case 'sales':
+        response = await this.callAgent(
+          'sales-agent', 
+          'handle_inquiry', 
+          inquiry
+        );
+        break;
+        
+      case 'support':
+        response = await this.callAgent(
+          'support-agent', 
+          'create_ticket', 
+          inquiry
+        );
+        break;
+        
+      case 'billing':
+        response = await this.callAgent(
+          'billing-agent', 
+          'resolve_billing_query', 
+          inquiry
+        );
+        break;
+    }
+    
+    // Step 3: Follow up and learning
+    await this.callAgent(
+      'analytics-agent', 
+      'track_interaction', 
+      {
+        inquiry,
+        classification,
+        response,
+        timestamp: new Date()
+      }
+    );
+    
+    return response;
+  }
+}
+```
+
+### Real-time Collaboration Example
+```typescript
+// Collaborative document analysis
+class DocumentAnalysisWorkflow {
+  async analyzeBusinessDocument(documentUrl) {
+    // Parallel analysis by specialized agents
+    const tasks = [
+      this.callAgent('legal-agent', 'review_compliance', { documentUrl }),
+      this.callAgent('finance-agent', 'analyze_financial_terms', { documentUrl }),
+      this.callAgent('risk-agent', 'assess_risks', { documentUrl }),
+      this.callAgent('content-agent', 'extract_key_points', { documentUrl })
+    ];
+    
+    const results = await Promise.all(tasks);
+    
+    // Synthesize results
+    const synthesis = await this.callAgent(
+      'synthesis-agent',
+      'combine_analyses',
+      {
+        legalReview: results[0],
+        financialAnalysis: results[1],
+        riskAssessment: results[2],
+        keyPoints: results[3]
+      }
+    );
+    
+    // Broadcast findings to interested parties
+    await this.broadcast('document_analysis_complete', {
+      documentUrl,
+      synthesis,
+      timestamp: new Date()
+    });
+    
+    return synthesis;
+  }
+}
+```
+
+## 🔌 MCP Client Integration
+
+### Claude Desktop Integration
+
+Add this to your Claude Desktop MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "muyal": {
+      "command": "node",
+      "args": ["path/to/muyal/lib/src/integrations/mcp-server.js"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
+```
+
+### Python MCP Client
+
+```python
+import asyncio
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+async def call_muyal():
+    server_params = StdioServerParameters(
+        command="node",
+        args=["path/to/muyal/lib/src/integrations/mcp-server.js"]
+    )
+    
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            # Initialize
+            await session.initialize()
+            
+            # List available tools
+            tools = await session.list_tools()
+            print("Available tools:", [tool.name for tool in tools.tools])
+            
+            # Call the chat function
+            result = await session.call_tool("chat", {
+                "message": "Hello from Python MCP client!",
+                "platform": "mcp-python"
+            })
+            
+            print("Response:", result.content[0].text)
+
+# Run the client
+asyncio.run(call_muyal())
+```
+
+## 🌐 Network Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   External      │    │   Muyal CEA     │    │   Calendar      │
+│   MCP Client    │◄──►│                 │◄──►│   Agent         │
+│   (Claude)      │    │   MCP Server    │    │                 │
+└─────────────────┘    │   A2A Hub       │    └─────────────────┘
+                       │                 │    
+┌─────────────────┐    │                 │    ┌─────────────────┐
+│   Email         │◄──►│                 │◄──►│   Slack         │
+│   Agent         │    │                 │    │   Agent         │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## 🔒 Security Considerations
+
+### Authentication
+- Add authentication to A2A endpoints in production
+- Use secure channels (HTTPS/WSS) for external communication
+- Validate agent identities and capabilities
+
+### Function Security
+```typescript
+// Add authentication to sensitive functions
+server.registerFunction({
+  name: 'admin_function',
+  description: 'Administrative function',
+  parameters: { /* ... */ },
+  handler: async (args, context) => {
+    // Check authentication
+    if (!context?.authenticated || !context?.hasRole('admin')) {
+      throw new Error('Unauthorized');
+    }
+    
+    // Your secure logic here
+    return await performAdminOperation(args);
+  }
+});
+```
+
+## 📊 Monitoring & Observability
+
+### Function Call Metrics
+```typescript
+// Monitor function calls
+server.registerFunction({
+  name: 'monitored_function',
+  description: 'Function with monitoring',
+  parameters: { /* ... */ },
+  handler: async (args) => {
+    const startTime = Date.now();
+    
+    try {
+      const result = await yourFunction(args);
+      
+      // Log success metrics
+      console.log('Function call successful', {
+        function: 'monitored_function',
+        duration: Date.now() - startTime,
+        args: args
+      });
+      
+      return result;
+    } catch (error) {
+      // Log error metrics
+      console.error('Function call failed', {
+        function: 'monitored_function',
+        duration: Date.now() - startTime,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+});
+```
+
+### A2A Network Health
+```typescript
+// Monitor agent health
+setInterval(async () => {
+  const agents = await server.callFunction('list_agents', {});
+  const healthChecks = await Promise.allSettled(
+    agents.map(agent => 
+      callAgent(agent.id, 'health', {})
+    )
+  );
+  
+  console.log('Network health:', {
+    totalAgents: agents.length,
+    healthyAgents: healthChecks.filter(check => 
+      check.status === 'fulfilled' && check.value.success
+    ).length
+  });
+}, 60000); // Check every minute
+```
+
+## 🧪 Testing
+
+### Unit Tests for Functions
+```typescript
+import { getUnifiedServer } from '../integrations/mcp-a2a-addon.js';
+
+describe('MCP Functions', () => {
+  let server;
+  
+  beforeAll(async () => {
+    server = getUnifiedServer();
+    await server.start();
+  });
+  
+  test('weather function returns valid data', async () => {
+    const result = await server.callFunction('get_weather', {
+      location: 'San Francisco',
+      units: 'celsius'
+    });
+    
+    expect(result.location).toBe('San Francisco');
+    expect(result.units).toBe('celsius');
+    expect(typeof result.temperature).toBe('number');
+  });
+  
+  test('chat function processes messages', async () => {
+    const result = await server.callFunction('chat', {
+      message: 'Hello, test message',
+      platform: 'test'
+    });
+    
+    expect(result.content).toBeDefined();
+    expect(typeof result.content).toBe('string');
+  });
+});
+```
+
+## 🚀 Production Deployment
+
+### Environment Configuration
+```bash
+# Production .env settings
+MCP_ENABLED=true
+A2A_ENABLED=true
+AGENT_ID=muyal-prod-001
+A2A_NETWORK_TIMEOUT=30000
+A2A_HEARTBEAT_INTERVAL=30000
+```
+
+### Docker Integration
+```dockerfile
+# Add to your Dockerfile
+EXPOSE 3978 3979 3980
+
+# Install MCP dependencies
+RUN npm install @modelcontextprotocol/sdk
+
+# Copy MCP configuration
+COPY .env.mcp-a2a.example .env.mcp-a2a
+```
+
+### Load Balancing
+- Use sticky sessions for A2A connections
+- Load balance MCP requests across instances
+- Implement agent failover mechanisms
+
+## 📚 Further Reading
+
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [MCP SDK Documentation](https://github.com/modelcontextprotocol/typescript-sdk)
+- [Agent Communication Patterns](https://en.wikipedia.org/wiki/Agent_communication_language)
+- [Muyal Architecture Guide](./ARCHITECTURE.md)
+
+## 🆘 Troubleshooting
+
+### Common Issues
+
+**MCP Server Not Starting**
+```bash
+# Check if port is available
+netstat -an | findstr :3979
+
+# Test MCP server directly
+npm run mcp:server
+```
+
+**A2A Agents Not Discovering**
+```bash
+# Check network connectivity
+curl http://localhost:3980/health
+
+# Verify agent registration
+npm run test:mcp
+```
+
+**Function Calls Failing**
+```typescript
+// Add debug logging
+server.registerFunction({
+  name: 'debug_function',
+  handler: async (args) => {
+    console.log('Function called with:', args);
+    try {
+      const result = await yourLogic(args);
+      console.log('Function result:', result);
+      return result;
+    } catch (error) {
+      console.error('Function error:', error);
+      throw error;
+    }
+  }
+});
+```
+
+---
+
+🐰 **Ready to make Muyal talk to everyone?** Follow this guide to enable powerful MCP and A2A capabilities!
+

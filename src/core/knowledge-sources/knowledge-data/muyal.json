@@ -1,0 +1,46 @@
+{
+  "id": "muyal",
+  "name": "About Muyal (Solution Overview)",
+  "description": "Consolidated solution overview for the Muyal AI agent: architecture, features, deployment and developer guidance",
+  "keywords": ["muyal", "architecture", "cea", "custom engine agent", "mcp", "agents", "observability", "knowledge-sources", "cosmos", "memory", "providers", "ai providers", "documentation"],
+  "priority": 85,
+  "enabled": true,
+  "provider": "file",
+  "metadata": {
+    "filePath": [
+      "README.md",
+      "docs/ARCHITECTURE.md",
+      "docs/SETUP_AND_USAGE.md",
+      "docs/CAPABILITIES.md",
+      "docs/TROUBLESHOOTING.md",
+      "docs/MCP_A2A_INTEGRATION.md"
+    ],
+    "docSources": [
+      "docs/ARCHITECTURE.md",
+      "docs/SETUP_AND_USAGE.md",
+      "README.md",
+      "docs/CAPABILITIES.md",
+      "docs/TROUBLESHOOTING.md",
+      "docs/MCP_A2A_INTEGRATION.md"
+    ],
+    "suggestionGeneration": "prefer_knowledge_then_ai",
+    "longDescription": "Title: About Muyal — Repo documentation and developer help\n\nSummary: This skill answers questions about the Muyal project by reading repository documentation and selected source files.\n\nWhat I can read: README.md, docs/**, and selected src/**/*. The file list is defined in the descriptor at seed-time.\n\nWhat I can do: Summarize docs, locate code and configuration, provide step-by-step developer tasks (for example: reseed knowledge, run local server), show code snippets with file/line references, and explain telemetry and observability behavior.\n\nHow to ask: Examples: \"Summarize README.md\"; \"Where is telemetry written? Show file + function\"; \"How do I seed the 'muyal' skill?\"\n\nLimitations & freshness: I only read the files listed in this descriptor. If the files change, re-seed to refresh knowledge.\n\nSource metadata: descriptor id: muyal."
+  },
+  "static": {
+    "text": "Muyal is an enterprise intelligence hub that answers developer and operator questions about this repository.",
+    "suggestions": [
+      "What is the Custom Engine Agent (CEA) pattern and how does Muyal implement it?",
+      "How do I add a new knowledge source (step-by-step)?",
+      "How do I configure AI providers and fallbacks?",
+      "How does conversation memory and continuation work?",
+      "Where are observability and telemetry written (local vs Cosmos)?",
+      "How do I run Muyal locally and enable Cosmos for production?",
+      "What are the recommended security practices for API keys and telemetry?",
+      "Show the architecture overview and where to add a new adapter"
+    ]
+  }
+  ,
+  "metadata": {
+    "longDescription": "Title: About Muyal — Repo documentation and developer help\n\nSummary: This skill answers questions about the Muyal project by reading repository documentation and selected source files.\n\nWhat I can read: README.md, docs/**, and selected src/**/*. The file list is defined in the descriptor at seed-time.\n\nWhat I can do: Summarize docs, locate code and configuration, provide step-by-step developer tasks (for example: reseed knowledge, run local server), show code snippets with file/line references, and explain telemetry and observability behavior.\n\nHow to ask: Examples: \"Summarize README.md\"; \"Where is telemetry written? Show file + function\"; \"How do I seed the 'muyal' skill?\"\n\nLimitations & freshness: I only read the files listed in this descriptor. If the files change, re-seed to refresh knowledge.\n\nSource metadata: descriptor id: muyal."
+  }
+}

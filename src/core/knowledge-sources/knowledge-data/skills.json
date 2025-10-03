@@ -1,0 +1,23 @@
+{
+  "id": "skills",
+  "name": "Skills (Cosmos)",
+  "description": "List of skills/capabilities stored in Cosmos DB; executor will query the skills container and return structured JSON",
+  "keywords": ["skill", "capability", "ability", "knowledge", "what can you do"],
+  "priority": 80,
+  "enabled": true,
+  "provider": "cosmos",
+  "metadata": {
+    "database": "muyal",
+    "container": "knowledge",
+    "query": "SELECT c.id, c.name, c.description, c.suggestions FROM c WHERE STARTSWITH(c.id, 'skill-') ORDER BY c.name",
+    "notes": "Queries the canonical 'knowledge' container for items whose id starts with 'skill-'. Seed skills into 'knowledge' to be discovered by this descriptor."
+  ,
+    "fallbackSkills": [
+      { "id": "skill-get-weather", "name": "Get Weather", "description": "Get current weather for a location." },
+      { "id": "skill-search-employees", "name": "Search Employees", "description": "Find employee details by name or department." },
+      { "id": "skill-company-overview", "name": "Company Overview", "description": "Short facts and summary about the company." }
+    ]
+  ,
+    "longDescription": "Title: Skills (Cosmos)\n\nSummary: Dynamically queries the 'knowledge' container in Cosmos DB for items whose id starts with 'skill-'.\n\nWhat I can read: Cosmos DB 'knowledge' container referenced by this descriptor.\n\nWhat I can do: Return structured skill entries that the runtime can render as available capabilities.\n\nHow to ask: \"List available skills\"; \"Show details for skill-company-overview\"\n\nLimitations: Requires access to the configured Cosmos DB instance and container."
+  }
+}

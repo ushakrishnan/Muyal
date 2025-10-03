@@ -71,10 +71,12 @@ export class KnowledgeLibrary {
     const relevantSources: KnowledgeSource[] = [];
     const suggestions: string[] = [];
     const usedSources: string[] = [];
+    const debug = !!process.env.KNOWLEDGE_DEBUG;
 
     for (const source of this.sources.values()) {
       if (source.isEnabled && source.isRelevant(message)) {
         relevantSources.push(source);
+        if (debug) console.debug(`[knowledge:enhance] candidate source=${source.id} name=${source.name}`);
       }
     }
 
@@ -85,7 +87,9 @@ export class KnowledgeLibrary {
 
     for (const source of relevantSources) {
       try {
+        if (debug) console.debug(`[knowledge:enhance] fetching context from ${source.id}`);
         const rawContext = await source.fetchContext();
+        if (debug) console.debug(`[knowledge:enhance] fetched rawContext length=${rawContext ? String(rawContext).length : 0}`);
         if (rawContext) {
           // Allow sources to return structured JSON (stringified) with a
           // well-known shape. If JSON parse succeeds and contains a `noData`
@@ -123,6 +127,7 @@ export class KnowledgeLibrary {
             contextSections.push(`[${source.name.toUpperCase()} KNOWLEDGE BASE]\n${rendered}`);
             suggestions.push(...source.getSuggestions());
             usedSources.push(source.id);
+            if (debug) console.debug(`[knowledge:enhance] used source=${source.id}`);
           }
         }
       } catch (error) {
@@ -163,6 +168,7 @@ export class KnowledgeLibrary {
    * Enhance a message by explicitly using a list of source IDs (useful for continuation/ack replies)
    */
   async enhanceWithSourceIds(originalMessage: string, sourceIds: string[]): Promise<KnowledgeContext> {
+    const debug = !!process.env.KNOWLEDGE_DEBUG;
     if (!sourceIds || sourceIds.length === 0) {
       return this.enhanceMessage(originalMessage);
     }
@@ -175,7 +181,9 @@ export class KnowledgeLibrary {
       const source = this.sources.get(id);
       if (!source || !source.isEnabled) continue;
       try {
+        if (debug) console.debug(`[knowledge:enhanceWithSourceIds] fetching ${id}`);
         const rawContext = await source.fetchContext();
+        if (debug) console.debug(`[knowledge:enhanceWithSourceIds] fetched length=${rawContext ? String(rawContext).length : 0}`);
         if (rawContext) {
           let rendered = '';
           try {

@@ -109,6 +109,13 @@ Plus, "Muyal" sounds way cooler than "GenericAIBot2024" and definitely more prof
 | **[MCP_A2A_INTEGRATION.md](docs/MCP_A2A_INTEGRATION.md)** | Protocol details, agent networks |
 | **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** | Common issues and solutions |
 
+## Observability & Telemetry
+
+Muyal supports local and Cosmos DB-backed telemetry. Observability in the codebase writes metrics and errors to two sinks:
+
+How writes are triggered
+- The server attaches a CosmosClient during bootstrap only when COSMOS endpoint/key are present. That client is injected into knowledge descriptor metadata so executors can call observability with the runtime client. If the client is not attached, telemetry is still written to the local JSONL files, but no DB writes occur.
+
 ## Tech stack
 
 * **Runtime**: Node.js + TypeScript with enterprise-grade error handling and observability

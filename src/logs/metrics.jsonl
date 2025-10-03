@@ -1,0 +1,8 @@
+{"timestamp":"2025-10-03T20:33:06.421Z","name":"executor.fetch.latency","value":0,"tags":{"provider":"static","id":"eldenring"}}
+{"timestamp":"2025-10-03T20:34:13.907Z","name":"executor.fetch.latency","value":0,"tags":{"provider":"static","id":"eldenring"}}
+{"timestamp":"2025-10-03T20:34:42.067Z","name":"executor.fetch.latency","value":366,"tags":{"provider":"http","id":"dogs"}}
+{"timestamp":"2025-10-03T20:35:11.838Z","name":"executor.fetch.latency","value":0,"tags":{"provider":"static","id":"company-overview"}}
+{"timestamp":"2025-10-03T20:35:11.838Z","name":"executor.fetch.cacheHit","value":1,"tags":{"provider":"http","id":"dogs"}}
+{"timestamp":"2025-10-03T20:35:32.657Z","name":"executor.fetch.cacheHit","value":1,"tags":{"provider":"http","id":"dogs"}}
+{"timestamp":"2025-10-03T20:36:03.281Z","name":"executor.fetch.latency","value":523,"tags":{"provider":"http","id":"employees"}}
+{"timestamp":"2025-10-03T20:36:03.316Z","name":"executor.fetch.latency","value":0,"tags":{"provider":"static","id":"template"}}

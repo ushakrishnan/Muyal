@@ -1,0 +1,17 @@
+{
+  "id": "eldenring",
+  "name": "Elden Ring Knowledge",
+  "description": "Game knowledge, tips, and item lists for Elden Ring",
+  "keywords": ["elden", "ring", "boss", "strategy", "game"],
+  "priority": 40,
+  "enabled": true,
+  "provider": "static",
+  "static": {
+    "text": "Elden Ring: Learn boss strategies, weapon scaling, and leveling tips. Example: Margit is weak to fire and frost—use ranged attacks to kite when possible.",
+    "suggestions": ["How to beat Margit?", "Best weapons for early game", "Where to find sites of grace"]
+  }
+  ,
+  "metadata": {
+    "longDescription": "Title: Elden Ring Knowledge\n\nSummary: Static game knowledge and tips for Elden Ring.\n\nWhat I can read: Descriptor-provided static text.\n\nWhat I can do: Provide tips, strategies, and quick references for bosses and items.\n\nHow to ask: \"How to beat Margit?\"; \"Best early-game weapons\"\n\nLimitations: Static content; for more updated strategies consult dedicated gaming resources."
+  }
+}

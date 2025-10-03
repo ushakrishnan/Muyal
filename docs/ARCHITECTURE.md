@@ -176,6 +176,15 @@ abstract class ObservabilityProvider {
 User Message → Platform Interface → Platform Adapter → Conversation Handler → AI Processor → AI Provider → Response
 ```
 
+### 1.5 Knowledge Enhancement Flow (detailed)
+```
+User Message → Continuation check (lastKnowledgeSources + cheap TF cosine) → knowledgeLibrary.enhanceMessage / enhanceWithSourceIds → fetchContext() calls to selected executors → aggregated enhancedMessage + suggestions → modelInput (enhancedMessage or original) → AI Processor
+```
+
+Notes:
+- Continuation logic prefers reusing previously stored `lastKnowledgeSources` when the current user message is a likely continuation (cheap cosine similarity / overlap heuristics) and there are no overriding currentlyRelevant sources.
+- The knowledge library collects suggestions from each used source and returns a de-duped top-3 list. At response composition time the server prefers knowledge-sourced suggestions and falls back to AI-generated suggestions when enhancement produced none.
+
 ### 2. AI Provider Selection Flow
 ```
 Platform Context → Configuration Lookup → Provider Selection → Fallback Chain → Health Check → AI Call
@@ -195,6 +204,21 @@ AI Request → Metrics Collection → Provider Logging → Dashboard Update → 
 ```
 User Interaction → Feedback Collection → Quality Rating → Observability Logging → Analytics Dashboard
 ```
+
+### Executor / Knowledge Source Runtime (new)
+
+Purpose: Provide a small, pluggable executor model that runs knowledge-source descriptors (JSON) through a provider-specific executor implementation. Executors allow knowledge sources to be defined declaratively and executed by a thin runtime with injected clients (A2A communicator, Cosmos client, etc.).
+
+Location: `src/core/knowledge-sources/` including `ensure-ks.ts`, `executor-factory.ts`, `types.ts`, and per-provider executor implementations (static, http, remote, etc.).
+
+Key points:
+- Knowledge sources are authored as JSON descriptors and loaded at startup (developer-authorable under `data/knowledge/` or `src/.../knowledge-data`).
+- `ensureKnowledgeSource` converts a descriptor into a runtime `KnowledgeSource` by wiring an executor from `getExecutorFor(desc, ctx)` and injecting runtime context (for example `cosmosClient` or `a2aCommunicator`) into `desc.metadata` so executors can use shared clients without API churn.
+- Executors return a normalized result shape { text, structured?, metadata? } where `structured` is preferred (JSON) and `metadata.raw` may hold legacy structured data. The `fetchContext()` wrapper in `ensure-ks` prefers `structured` → `metadata.raw` → `text` when producing context injected into prompts.
+- Executors also expose `getSuggestions()` which the knowledge library aggregates.
+
+Why this matters:
+- The descriptor + executor model separates data (what to fetch) from behavior (how to fetch it). It makes adding new source types trivial and keeps runtime wiring minimal.
 
 ## Key Benefits
 
@@ -233,6 +257,14 @@ Muyal separates two memory concepts which are configurable:
 Storage backends:
 - Filesystem: local JSON files under `./data/conversations/` (development default).
 - Azure Cosmos DB: production-ready document store (enable by setting `MEMORY_PROVIDER=cosmos` and providing `COSMOS_ENDPOINT` / `COSMOS_KEY`). The Cosmos provider persists messages and conversation contexts and supports efficient queries for analytics.
+
+Observability & telemetry sinks:
+- Local JSONL files are written reliably for development and offline diagnostics (examples: `logs/error-entities.jsonl`, `logs/metrics.jsonl`).
+- When configured with a Cosmos client (attached at startup or injected into executor context), observability attempts best-effort upserts into Cosmos. Two containers are used by convention:
+  - `errors` — error / exception records
+  - `logs` — metric / request logs
+- The Cosmos helper performs create-if-not-exists semantics for the database and containers before upserting documents. Partition key usage is currently `/id` (pragmatic default); consider a more selective partition key for production throughput.
+- Exceptions during Cosmos creation or upsert are logged as warnings and do not block request processing. Unit tests may log a warning when using mocked clients that don't implement `createIfNotExists`.
 
 Knowledge versioning & soft-reset:
 - The knowledge library exposes a `knowledgeVersion` value. When knowledge sources are added/removed or toggled, the version is bumped. The unified server subscribes to these changes and performs a soft-reset across active conversations — clearing cached `lastKnowledgeSources` and updating `knowledgeVersion` in conversation contexts to avoid using stale provenance.
@@ -345,17 +377,28 @@ src/core/knowledge-sources/
 └── template-knowledge.ts      # Template for new sources
 ```
 
-### Knowledge Source Interface
+### Knowledge Source Interface & Descriptor Model
+Knowledge sources are authored as JSON descriptors and then converted into a runtime `KnowledgeSource` via `ensureKnowledgeSource(desc, ctx)`.
+
+Runtime shape (summary):
 ```typescript
-interface KnowledgeSource {
+type KnowledgeSource = {
+  id: string;
   name: string;
-  description: string;
-  priority: number;              // 90-100: Critical, 70-89: Important, 50-69: Helpful
-  isRelevant(message: string): boolean;
-  getContext(message: string): Promise<string>;
-  getSuggestions?(): string[];
+  keywords: string[];
+  isEnabled: boolean;
+  isRelevant: (message: string) => boolean;
+  fetchContext: (ctx?: { conversationId?: string }) => Promise<string>;
+  getSuggestions?: () => string[];
+  descriptor: KnowledgeDescriptorT;
 }
 ```
+
+Descriptor-to-runtime notes:
+- `ensureKnowledgeSource` attaches any runtime clients from the loader (for example `cosmosClient` or `a2aCommunicator`) into `desc.metadata` so executors can access them.
+- `fetchContext()` is a thin wrapper that executes the configured executor and normalizes the returned value to a string (preferring `structured` JSON when present, else `metadata.raw`, else `text`).
+- `isRelevant()` uses keywords, name substring match, and small-token fuzzy matching (Levenshtein-based) to be resilient to typos and short queries.
+- `getSuggestions()` defaults to `desc.metadata?.suggestions ?? []` but executors or specific sources can supply dynamic suggestions.
 
 ### Automatic Enhancement Process
 1. **Message Analysis**: Incoming messages analyzed for relevant keywords

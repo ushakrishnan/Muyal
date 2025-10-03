@@ -1,0 +1,21 @@
+{
+  "id": "employees",
+  "name": "Employee Database",
+  "description": "Company employee information including salaries, ages, and names",
+  "keywords": ["employee", "staff", "salary", "hr", "team"],
+  "priority": 90,
+  "enabled": true,
+  "provider": "http",
+  "http": {
+    "endpoint": "https://dummy.restapiexample.com/api/v1/employees",
+    "method": "GET",
+    "cacheTtlSeconds": 60,
+    "requestBodyTemplate": "",
+    "secretEnvName": ""
+  },
+  "metadata": {
+    "notes": "Executor will parse returned JSON and render structured employee statistics. If API fails, fallback will be used."
+  ,
+    "longDescription": "Title: Employee Database\n\nSummary: Live employee data from a demo API.\n\nWhat I can read: The HTTP endpoint configured in this descriptor.\n\nWhat I can do: Return structured employee lists and basic statistics (count, avg salary).\n\nHow to ask: \"List employees\"; \"Show average salary by department\"\n\nLimitations: This data is fetched live and may be incomplete or rate-limited."
+  }
+}

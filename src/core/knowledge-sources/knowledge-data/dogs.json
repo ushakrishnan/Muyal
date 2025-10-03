@@ -1,0 +1,20 @@
+{
+  "id": "dogs",
+  "name": "Dog Image & Breed Database",
+  "description": "Random dog images and comprehensive breed information from Dog CEO API",
+  "keywords": ["dog", "puppy", "breed", "canine", "pet", "animal"],
+  "priority": 70,
+  "enabled": true,
+  "provider": "http",
+  "http": {
+    "endpoint": "https://dog.ceo/api/breeds/image/random",
+    "method": "GET",
+    "cacheTtlSeconds": 60
+  },
+  "metadata": {
+    "notes": "Primary dog image endpoint; loader/executor will attempt to parse returned JSON and render sample breeds by calling additional endpoints if needed.",
+    "noSkill": true
+  ,
+    "longDescription": "Title: Dog Image & Breed Database\n\nSummary: Returns random dog images and breed information from the Dog CEO API.\n\nWhat I can read: Live HTTP endpoint at https://dog.ceo/api/breeds/image/random and related breed endpoints.\n\nWhat I can do: Provide a sample image URL, lookup breed details, and show example API responses.\n\nHow to ask: \"Show a random dog image\"; \"What breeds are available?\"\n\nLimitations: This is a live HTTP data source and not a pre-seeded textual knowledge skill."
+  }
+}

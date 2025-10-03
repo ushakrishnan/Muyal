@@ -1,0 +1,5 @@
+{"timestamp":"2025-10-03T21:47:59.101Z","name":"test.latency","value":123,"tags":{"tag":"x"}}
+{"timestamp":"2025-10-03T21:47:59.103Z","name":"test.counter","value":1,"tags":{"tag":"x"}}
+{"timestamp":"2025-10-03T21:49:17.884Z","name":"executor.fetch.latency","value":482,"tags":{"provider":"http","id":"dogs"}}
+{"timestamp":"2025-10-03T21:50:14.605Z","name":"executor.fetch.cacheHit","value":1,"tags":{"provider":"http","id":"dogs"}}
+{"timestamp":"2025-10-03T21:50:24.190Z","name":"executor.fetch.latency","value":251,"tags":{"provider":"http","id":"dogs"}}

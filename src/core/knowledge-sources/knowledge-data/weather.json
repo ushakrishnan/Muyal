@@ -1,0 +1,24 @@
+{
+  "id": "weather",
+  "name": "Weather Information",
+  "description": "Current weather conditions and forecast (sample static)",
+  "keywords": ["weather", "temperature", "forecast", "rain", "sunny"],
+  "priority": 50,
+  "enabled": true,
+  "provider": "static",
+  "static": {
+    "text": "CURRENT WEATHER (Seattle, WA): Temperature: 52°F, Conditions: Partly Cloudy. 3-day forecast: Today 58/45 Partly Cloudy; Tomorrow 61/48 Sunny; Wednesday 55/42 Rainy.",
+    "suggestions": ["Check current weather conditions", "Get 3-day weather forecast", "Ask for clothing recommendations based on weather"]
+  }
+  ,
+  "metadata": {
+    "skill": {
+      "id": "skill-get-weather",
+      "name": "Get Weather",
+      "description": "Quickly get current conditions and a short forecast.",
+      "suggestions": ["What's the weather now?", "3-day forecast"]
+    }
+  ,
+    "longDescription": "Title: Weather Information\n\nSummary: Static sample weather information used as a demo data source.\n\nWhat I can read: Descriptor-provided static weather text or a live provider if reconfigured.\n\nWhat I can do: Provide a quick weather summary and example suggestions for follow-ups.\n\nHow to ask: \"What's the weather now?\"; \"Give a 3-day forecast\"\n\nLimitations: This is static demo data and may not reflect real-time conditions. For live data, configure an HTTP weather provider."
+  }
+}

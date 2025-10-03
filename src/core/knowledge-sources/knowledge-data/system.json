@@ -1,0 +1,17 @@
+{
+  "id": "system",
+  "name": "System Knowledge",
+  "description": "System-level information and helper commands",
+  "keywords": ["system", "help", "commands", "restart"],
+  "priority": 60,
+  "enabled": true,
+  "provider": "static",
+  "static": {
+    "text": "SYSTEM HELP: Use 'reset conversation' to start fresh. Access logs in /logs and check settings in the admin console.",
+    "suggestions": ["Reset conversation", "Show logs", "List available commands"]
+  }
+  ,
+  "metadata": {
+    "longDescription": "Title: System Knowledge\n\nSummary: System-level helper commands and operator guidance.\n\nWhat I can read: Administrative help and system guidance embedded in the descriptor.\n\nWhat I can do: Provide reset and diagnostics commands and point to operational logs.\n\nHow to ask: \"Reset conversation\"; \"Show logs\"\n\nLimitations: Not a replacement for operator documentation; intended for quick help."
+  }
+}
