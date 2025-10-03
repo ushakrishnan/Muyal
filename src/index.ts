@@ -3,10 +3,11 @@ import { agentApp, createWebAdapter } from "./agent";
 import express from "express";
 import path from "path";
 import config from "./config";
-import { ConversationHandler } from "./core/conversation-handler";
-import { AIConfiguration, EnvironmentHelper } from "./core/ai-configuration";
-import { integratedServer } from "./integrations/mcp-a2a-integration";
-import { conversationMemory } from "./core/conversation-memory";
+import { ConversationHandler } from "./core/conversation/handler";
+import { AIConfiguration, EnvironmentHelper } from "./core/ai/configuration";
+import { integratedServer } from "./integrations/mcp/mcp-a2a-integration";
+import { conversationMemory } from "./core/memory";
+import { initMemory } from "./core/memory";
 
 console.log(`🚀 Starting Muyal AI Agent on port ${config.server.port}`);
 if (config.development.debugMode) {
@@ -39,6 +40,14 @@ async function initializeAI() {
     
     // Initialize conversation handler
     await ConversationHandler.initialize();
+
+    // Initialize conversation memory provider (filesystem or cosmos)
+    try {
+      await initMemory();
+      console.log('✅ Conversation memory provider initialized');
+    } catch (err) {
+      console.warn('⚠️ Failed to initialize memory provider:', err);
+    }
     
     // Show configuration summary
     const summary = AIConfiguration.getConfigurationSummary();
@@ -169,20 +178,20 @@ function startApplication() {
   });
 
   // Get conversation history (legacy endpoint - redirects to new memory system)
-  server.get('/api/conversation/:id', (req, res) => {
+  server.get('/api/conversation/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const messages = conversationMemory.getConversation(id);
-      const context = conversationMemory.getContext(id);
-      
+      const messages = await conversationMemory.getConversation(id);
+      const context = await conversationMemory.getContext(id);
+
       // Convert to legacy format for backward compatibility
-      const legacyHistory = messages.map(msg => ({
+      const legacyHistory = (messages || []).map((msg: any) => ({
         role: msg.role,
         content: msg.content,
         timestamp: msg.timestamp,
         metadata: msg.metadata
       }));
-      
+
       res.json({ 
         success: true, 
         history: legacyHistory,
@@ -200,10 +209,10 @@ function startApplication() {
   });
 
   // Clear conversation (updated to use memory service)
-  server.delete('/api/conversation/:id', (req, res) => {
+  server.delete('/api/conversation/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      conversationMemory.clearConversation(id);
+      await conversationMemory.clearConversation(id);
       res.json({ 
         success: true, 
         message: 'Conversation cleared',
@@ -222,9 +231,9 @@ function startApplication() {
   // Conversation Memory Endpoints
 
   // Get all conversations list
-  server.get('/api/conversations', (req, res) => {
+  server.get('/api/conversations', async (req, res) => {
     try {
-      const conversations = conversationMemory.getAllConversations();
+      const conversations = await conversationMemory.getAllConversations();
       res.json({
         success: true,
         conversations,
@@ -240,18 +249,18 @@ function startApplication() {
   });
 
   // Get specific conversation with full history
-  server.get('/api/conversations/:id', (req, res) => {
+  server.get('/api/conversations/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const messages = conversationMemory.getConversation(id);
-      const context = conversationMemory.getContext(id);
+      const messages = await conversationMemory.getConversation(id);
+      const context = await conversationMemory.getContext(id);
       res.json({
         success: true,
         conversation: {
           id,
           messages,
           context,
-          messageCount: messages.length
+          messageCount: (messages || []).length
         },
         timestamp: new Date().toISOString()
       });
@@ -265,10 +274,10 @@ function startApplication() {
   });
 
   // Delete specific conversation
-  server.delete('/api/conversations/:id', (req, res) => {
+  server.delete('/api/conversations/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      conversationMemory.clearConversation(id);
+      await conversationMemory.clearConversation(id);
       res.json({
         success: true,
         message: 'Conversation deleted',
@@ -285,9 +294,9 @@ function startApplication() {
   });
 
   // Get conversation memory statistics
-  server.get('/api/memory/stats', (req, res) => {
+  server.get('/api/memory/stats', async (req, res) => {
     try {
-      const stats = conversationMemory.getStats();
+      const stats = await conversationMemory.getStats();
       res.json({
         success: true,
         stats,

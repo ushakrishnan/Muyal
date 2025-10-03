@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { PlatformAdapter } from "../base/platform-adapter";
-import { ConversationInput, ConversationContext, AIResponse, PlatformType } from "../../core/types";
+import { ConversationInput, ConversationContext, AIResponse, PlatformType } from "../../core/core-types";
 import { AnalyticsService } from "../../services/analytics/analytics-service";
 
 export class WebAdapter extends PlatformAdapter {

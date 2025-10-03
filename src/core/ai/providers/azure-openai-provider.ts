@@ -1,4 +1,4 @@
-import { AIProvider, ProviderConfig, ProviderType, AIResponse, ProviderFactory } from "../../core/ai-types";
+import { AIProvider, ProviderConfig, ProviderType, AIResponse, ProviderFactory } from "../../ai/types";
 
 export interface AzureOpenAIConfig extends ProviderConfig {
   apiKey: string;
@@ -181,3 +181,4 @@ export function createAzureOpenAIFromEnv(name: string = 'azure-openai-default'):
 
   return new AzureOpenAIProvider(config);
 }
+// Legacy re-export removed: implementation now lives here under src/core/ai/providers

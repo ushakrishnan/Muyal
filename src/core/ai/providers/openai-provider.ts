@@ -1,4 +1,4 @@
-import { AIProvider, ProviderConfig, ProviderType, AIResponse, ProviderFactory } from "../../core/ai-types";
+import { AIProvider, ProviderConfig, ProviderType, AIResponse, ProviderFactory } from "../../ai/types";
 
 export interface OpenAIConfig extends ProviderConfig {
   apiKey: string;
@@ -152,3 +152,4 @@ export function createOpenAIFromEnv(name: string = 'openai-default'): OpenAIProv
 
   return new OpenAIProvider(config);
 }
+// Legacy re-export removed: implementation now lives here under src/core/ai/providers

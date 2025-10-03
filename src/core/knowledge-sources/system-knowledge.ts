@@ -3,7 +3,7 @@
  * Provides system information and agent capabilities
  */
 
-import { KnowledgeSource } from '../knowledge-library';
+import { KnowledgeSource } from '../knowledge/library';
 
 export const systemKnowledgeSource: KnowledgeSource = {
   id: 'system',

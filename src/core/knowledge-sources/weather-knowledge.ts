@@ -3,7 +3,7 @@
  * Provides weather information and related suggestions
  */
 
-import { KnowledgeSource } from '../knowledge-library';
+import { KnowledgeSource } from '../knowledge/library';
 
 export const weatherKnowledgeSource: KnowledgeSource = {
   id: 'weather',

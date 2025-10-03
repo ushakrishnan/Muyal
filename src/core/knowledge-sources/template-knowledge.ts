@@ -10,7 +10,7 @@
  * 5. Test with sample queries
  */
 
-import { KnowledgeSource } from '../knowledge-library';
+import { KnowledgeSource } from '../knowledge/library';
 
 export const templateKnowledgeSource: KnowledgeSource = {
   // Unique identifier for this knowledge source

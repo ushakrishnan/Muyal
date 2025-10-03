@@ -1,5 +1,5 @@
 import { PlatformAdapter } from "./platform-adapter";
-import { PlatformType } from "../../core/types";
+import { PlatformType } from "../../core/core-types";
 
 export class AdapterRegistry {
   private static adapters = new Map<PlatformType, PlatformAdapter>();

@@ -105,6 +105,17 @@ User: "Who are the highest paid employees?"
 
 **Sample Response:** *"Based on current data, the highest paid employees are: Paul Byrd ($725,000), Yuri Berry ($675,000), Charde Marshall ($470,600). The company has 24 employees with an average salary of $266,000."*
 
+### Storage & Conversation Memory
+
+Muyal supports two persistent memory backends: filesystem JSON storage (default for local dev) and Azure Cosmos DB for scalable production storage. The memory provider is configurable via `MEMORY_PROVIDER` in `.env` and the Cosmos connection via `COSMOS_ENDPOINT` / `COSMOS_KEY` when selected.
+
+Key memory concepts:
+- MODEL_HISTORY_WINDOW: how many recent chat turns are sent to the LLM (default 4).
+- LOGICAL_MEMORY_ANSWER_COUNT: how many assistant messages and knowledge source IDs are kept in conversation context for quick continuation and provenance (default 10).
+- Continuation heuristic: short confirmations and one-line replies trigger reuse of prior knowledge source IDs to keep follow-ups coherent without re-querying all sources.
+
+These features improve response relevance while controlling token usage and providing clear provenance for answers.
+
 ## 🚀 **Adding New Functions**
 
 ### Pattern for External APIs

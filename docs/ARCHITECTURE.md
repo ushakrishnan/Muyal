@@ -223,6 +223,22 @@ User Interaction → Feedback Collection → Quality Rating → Observability Lo
 - AI provider load balancing
 - Async/await throughout
 
+## Storage & Memory Design
+
+Muyal separates two memory concepts which are configurable:
+
+- Model history: the short sequence of recent turns sent to the LLM when generating a response. Controlled by `MODEL_HISTORY_WINDOW` (default: 4). Smaller windows reduce token usage; larger windows increase context but cost more.
+- Logical memory / provenance: a small persistent set of recent assistant responses and the knowledge source IDs they used. Controlled by `LOGICAL_MEMORY_ANSWER_COUNT` (default: 10). This is stored on the conversation context and used for continuation seeding and lightweight provenance.
+
+Storage backends:
+- Filesystem: local JSON files under `./data/conversations/` (development default).
+- Azure Cosmos DB: production-ready document store (enable by setting `MEMORY_PROVIDER=cosmos` and providing `COSMOS_ENDPOINT` / `COSMOS_KEY`). The Cosmos provider persists messages and conversation contexts and supports efficient queries for analytics.
+
+Knowledge versioning & soft-reset:
+- The knowledge library exposes a `knowledgeVersion` value. When knowledge sources are added/removed or toggled, the version is bumped. The unified server subscribes to these changes and performs a soft-reset across active conversations — clearing cached `lastKnowledgeSources` and updating `knowledgeVersion` in conversation contexts to avoid using stale provenance.
+
+These controls let operators tune cost vs. recall and ensure provenance accuracy when the knowledge base changes.
+
 ## Configuration System
 
 ### Environment-Driven Setup

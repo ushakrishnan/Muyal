@@ -1,4 +1,4 @@
-import { ConversationInput, ConversationContext, AIResponse, PlatformType } from "../../core/types";
+import { ConversationInput, ConversationContext, AIResponse, PlatformType } from "../../core/core-types";
 
 // Abstract base class for all platform adapters
 export abstract class PlatformAdapter {

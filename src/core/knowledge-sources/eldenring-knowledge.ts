@@ -3,7 +3,7 @@
  * Provides Elden Ring game information from IGN and Fextralife wikis
  */
 
-import { KnowledgeSource } from '../knowledge-library';
+import { KnowledgeSource } from '../knowledge/library';
 
 // Fallback Elden Ring data when wikis are unavailable
 const getFallbackEldenRingData = (): string => {

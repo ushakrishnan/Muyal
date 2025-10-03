@@ -3,7 +3,7 @@
  * Provides general company information and policies
  */
 
-import { KnowledgeSource } from '../knowledge-library';
+import { KnowledgeSource } from '../knowledge/library';
 
 export const companyKnowledgeSource: KnowledgeSource = {
   id: 'company',

@@ -1,8 +1,8 @@
 import { ActivityTypes } from "@microsoft/agents-activity";
 import { AgentApplication, MemoryStorage, TurnContext } from "@microsoft/agents-hosting";
 import config from "./config";
-import { ConversationMessage } from "./core/types";
-import { integratedServer } from "./integrations/mcp-a2a-integration";
+import { ConversationMessage } from "./core/core-types";
+import { integratedServer } from "./integrations/mcp/mcp-a2a-integration";
 
 // Define storage and application for Microsoft 365
 const storage = new MemoryStorage();

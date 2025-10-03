@@ -278,3 +278,13 @@ npm start 2>&1 | tail -50
 5. ✅ Dependencies installed (`npm install`)
 6. ✅ Build successful (`npm run build`)
 7. ✅ Health endpoints responding
+
+### Cosmos DB & Memory issues
+
+- If you've selected `MEMORY_PROVIDER=cosmos` and see TLS or connection errors when running locally, ensure you're either using the Cosmos emulator or have a valid `COSMOS_ENDPOINT` and `COSMOS_KEY` set in your environment.
+- Local emulator tip: the local Cosmos emulator may set `NODE_TLS_REJECT_UNAUTHORIZED=0` temporarily when used by scripts — this is only for local testing. Do not use this in production.
+
+If messages are not persisted:
+1. Check provider selection in `.env` (`MEMORY_PROVIDER=filesystem` or `MEMORY_PROVIDER=cosmos`).
+2. For filesystem: confirm `./data/conversations/` is writable.
+3. For Cosmos: confirm endpoint/key and that the database/container exist (scripts are provided to list/read items).

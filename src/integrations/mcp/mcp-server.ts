@@ -6,8 +6,9 @@ import {
   ListToolsRequestSchema,
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
-import { ConversationHandler } from './conversation-handler.js';
-import { AIProcessor } from './ai-processor.js';
+import { ConversationHandler } from '../../core/conversation/handler';
+import { AIProcessor } from '../../core/ai/processor';
+import { UnifiedAgentServer } from '../../core/server/unified-agent-server';
 
 export interface MCPTool {
   name: string;
@@ -22,14 +23,20 @@ export interface MCPTool {
 
 export class MCPServer {
   private server: Server;
-  private conversationHandler: ConversationHandler;
-  private aiProcessor: AIProcessor;
+  private conversationHandler?: ConversationHandler;
+  private aiProcessor?: AIProcessor;
+  private unifiedServer?: UnifiedAgentServer;
   private tools: Map<string, MCPTool> = new Map();
 
-  constructor(conversationHandler: ConversationHandler, aiProcessor: AIProcessor) {
-    this.conversationHandler = conversationHandler;
-    this.aiProcessor = aiProcessor;
-    
+  // Flexible constructor: accept either (conversationHandler, aiProcessor) OR (unifiedServer)
+  constructor(arg1: ConversationHandler | UnifiedAgentServer, arg2?: AIProcessor) {
+    if ((arg1 as UnifiedAgentServer).callFunction) {
+      this.unifiedServer = arg1 as UnifiedAgentServer;
+    } else {
+      this.conversationHandler = arg1 as ConversationHandler;
+      this.aiProcessor = arg2;
+    }
+
     this.server = new Server(
       {
         name: 'muyal-cea',
@@ -51,6 +58,17 @@ export class MCPServer {
   private setupHandlers() {
     // Handle tool listing
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      if (this.unifiedServer) {
+        const functions = this.unifiedServer.getFunctions();
+        return {
+          tools: functions.map(func => ({
+            name: func.name,
+            description: func.description,
+            inputSchema: (func as any).inputSchema || (func as any).parameters || { type: 'object', properties: {} },
+          })),
+        };
+      }
+
       return {
         tools: Array.from(this.tools.values()).map(tool => ({
           name: tool.name,
@@ -63,7 +81,29 @@ export class MCPServer {
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
-      
+
+      // If unifiedServer is present, try to dispatch to it first
+      if (this.unifiedServer) {
+        try {
+          const result = await this.unifiedServer.callFunction(name, args || {});
+          return {
+            content: [
+              {
+                type: 'text',
+                text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
+              },
+            ],
+          };
+        } catch (err) {
+          // If unified server signals method not found, fall back to local tools below
+          // otherwise propagate
+          const msg = err instanceof Error ? err.message : String(err);
+          if (!/not found|MethodNotFound/i.test(msg)) {
+            throw new McpError(ErrorCode.InternalError, `Function execution failed: ${msg}`);
+          }
+        }
+      }
+
       const tool = this.tools.get(name);
       if (!tool) {
         throw new McpError(
@@ -116,6 +156,14 @@ export class MCPServer {
         required: ['message'],
       },
       handler: async (args) => {
+        if (this.unifiedServer) {
+          return await this.unifiedServer.callFunction('chat', args || {});
+        }
+
+        if (!this.conversationHandler) {
+          throw new Error('No conversation handler available to process chat');
+        }
+
         const response = await this.conversationHandler.handleMessage({
           content: args.message,
           conversationId: args.conversationId || 'mcp-session',
@@ -136,8 +184,9 @@ export class MCPServer {
         properties: {},
       },
       handler: async () => {
-        const health = await this.aiProcessor.getHealthStatus();
-        return health;
+        if (this.aiProcessor) return await this.aiProcessor.getHealthStatus();
+        if (this.unifiedServer) return await this.unifiedServer.callFunction('health', {});
+        throw new Error('No AI processor or unified server available to provide health');
       },
     });
 
@@ -161,6 +210,7 @@ export class MCPServer {
         required: ['provider'],
       },
       handler: async (args) => {
+        if (this.unifiedServer) return await this.unifiedServer.callFunction('switch_provider', args || {});
         // This would need implementation in the AI processor
         return `Switched to provider: ${args.provider} for platform: ${args.platform || 'mcp'}`;
       },
@@ -175,8 +225,9 @@ export class MCPServer {
         properties: {},
       },
       handler: async () => {
-        const providers = await this.aiProcessor.getAvailableProviders();
-        return providers;
+        if (this.aiProcessor) return await this.aiProcessor.getAvailableProviders();
+        if (this.unifiedServer) return await this.unifiedServer.callFunction('list_providers', {});
+        throw new Error('No AI processor or unified server available to list providers');
       },
     });
   }
@@ -195,3 +246,5 @@ export class MCPServer {
     await this.server.close();
   }
 }
+
+export default MCPServer;

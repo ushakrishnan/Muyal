@@ -1,5 +1,5 @@
-import { AIProvider, ProviderConfig, PlatformProviderMapping, ProviderType, ProviderFactory } from "./ai-types";
-import { PlatformType } from "./types";
+import { AIProvider, ProviderConfig, PlatformProviderMapping, ProviderType, ProviderFactory } from "../ai/types";
+import { PlatformType } from "../core-types";
 
 export class AIProviderRegistry {
   private static providers = new Map<string, AIProvider>();
@@ -8,17 +8,11 @@ export class AIProviderRegistry {
   private static defaultProvider: string | null = null;
   private static fallbackProvider: string | null = null;
 
-  /**
-   * Register a provider factory
-   */
   static registerFactory(type: ProviderType, factory: ProviderFactory): void {
     this.factories.set(type, factory);
-    console.log(`✅ Registered AI provider factory: ${type}`);
+    console.log(`\u2705 Registered AI provider factory: ${type}`);
   }
 
-  /**
-   * Create and register a provider instance
-   */
   static createProvider(type: ProviderType, config: ProviderConfig): void {
     const factory = this.factories.get(type);
     if (!factory) {
@@ -32,12 +26,9 @@ export class AIProviderRegistry {
     const provider = factory.create(config);
     this.providers.set(config.name, provider);
     
-    console.log(`✅ Created AI provider: ${config.name} (${type})`);
+    console.log(`\u2705 Created AI provider: ${config.name} (${type})`);
   }
 
-  /**
-   * Get provider by name
-   */
   static getProvider(name: string): AIProvider {
     const provider = this.providers.get(name);
     if (!provider) {
@@ -46,9 +37,6 @@ export class AIProviderRegistry {
     return provider;
   }
 
-  /**
-   * Get provider for a specific platform
-   */
   static getProviderForPlatform(platform: PlatformType): AIProvider {
     const mapping = this.platformMappings.get(platform);
     if (mapping) {
@@ -66,7 +54,6 @@ export class AIProviderRegistry {
       }
     }
 
-    // Use default provider
     if (this.defaultProvider) {
       try {
         return this.getProvider(this.defaultProvider);
@@ -75,7 +62,6 @@ export class AIProviderRegistry {
       }
     }
 
-    // Use fallback provider
     if (this.fallbackProvider) {
       return this.getProvider(this.fallbackProvider);
     }
@@ -83,41 +69,26 @@ export class AIProviderRegistry {
     throw new Error(`No available AI provider for platform: ${platform}`);
   }
 
-  /**
-   * Set platform-specific provider mapping
-   */
   static setPlatformMapping(mapping: PlatformProviderMapping): void {
     this.platformMappings.set(mapping.platform as PlatformType, mapping);
-    console.log(`✅ Set provider mapping for ${mapping.platform}: ${mapping.primaryProvider}`);
+    console.log(`\u2705 Set provider mapping for ${mapping.platform}: ${mapping.primaryProvider}`);
   }
 
-  /**
-   * Set default and fallback providers
-   */
   static setDefaultProviders(defaultProvider: string, fallbackProvider?: string): void {
     this.defaultProvider = defaultProvider;
     this.fallbackProvider = fallbackProvider || null;
-    console.log(`✅ Set default provider: ${defaultProvider}, fallback: ${fallbackProvider || 'none'}`);
+    console.log(`\u2705 Set default provider: ${defaultProvider}, fallback: ${fallbackProvider || 'none'}`);
   }
 
-  /**
-   * Get all available providers
-   */
   static getAvailableProviders(): string[] {
     return Array.from(this.providers.keys());
   }
 
-  /**
-   * Check provider health
-   */
   static async checkProviderHealth(name: string): Promise<any> {
     const provider = this.getProvider(name);
     return await provider.getHealth();
   }
 
-  /**
-   * Check all providers health
-   */
   static async checkAllProvidersHealth(): Promise<Record<string, any>> {
     const health: Record<string, any> = {};
     
@@ -135,23 +106,14 @@ export class AIProviderRegistry {
     return health;
   }
 
-  /**
-   * Get platform mappings
-   */
   static getPlatformMappings(): Map<PlatformType, PlatformProviderMapping> {
     return new Map(this.platformMappings);
   }
 
-  /**
-   * Remove provider
-   */
   static removeProvider(name: string): boolean {
     return this.providers.delete(name);
   }
 
-  /**
-   * Clear all providers (useful for testing)
-   */
   static clear(): void {
     this.providers.clear();
     this.platformMappings.clear();
@@ -159,9 +121,6 @@ export class AIProviderRegistry {
     this.fallbackProvider = null;
   }
 
-  /**
-   * Get provider configuration for platform
-   */
   static getProviderConfigForPlatform(platform: PlatformType): {
     provider: AIProvider;
     options?: any;
@@ -175,9 +134,6 @@ export class AIProviderRegistry {
     };
   }
 
-  /**
-   * Validate all configurations
-   */
   static validateAllConfigurations(): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     
@@ -197,3 +153,4 @@ export class AIProviderRegistry {
     };
   }
 }
+// Legacy re-export removed during refactor. AIProviderRegistry is defined above.

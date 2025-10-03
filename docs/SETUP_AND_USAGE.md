@@ -174,6 +174,40 @@ SLACK_AI_PROVIDER=google-ai-default
 SLACK_AI_FALLBACK_PROVIDER=ollama-default
 ```
 
+## Storage and Memory
+
+Muyal now supports two persistent conversation storage backends: the existing filesystem JSON store and an Azure Cosmos DB provider. Both are configured via environment variables and are swappable at runtime using the memory provider selection in the configuration.
+
+- Filesystem (default): stores conversation documents under `./data/conversations/` as JSON files. Great for local development and quick testing.
+- Azure Cosmos DB (recommended for production): a scalable document store used for long-lived conversation persistence and analytics. When running locally, the Cosmos emulator is supported for tests.
+
+Configuration (examples):
+
+Filesystem (local dev):
+```bash
+MEMORY_PROVIDER=filesystem
+# Conversations will be written to ./data/conversations/
+```
+
+Cosmos DB (production / dev with emulator):
+```bash
+MEMORY_PROVIDER=cosmos
+COSMOS_ENDPOINT=https://localhost:8081/            # or your Cosmos endpoint
+COSMOS_KEY=your_cosmos_key_here
+COSMOS_DATABASE=muyal
+COSMOS_CONTAINER=conversations
+```
+
+Memory behavior and tuning
+- LOGICAL_MEMORY_ANSWER_COUNT (default 10): How many of the most recent assistant responses (and their knowledge source IDs) are kept as logical memory in the conversation context. This is used for lightweight provenance and continuation seeding.
+- MODEL_HISTORY_WINDOW (default 4): How many recent messages (user+assistant) are sent directly to the LLM as chat history. Use this to balance token cost vs. context.
+
+Continuations & Provenance
+- Short follow-ups (e.g., "ok", "show me", small confirmations) are treated as continuations and the last assistant's knowledge source IDs are reseeded into enhancement parameters so the reply can reuse the previously retrieved knowledge.
+- The knowledge library includes a `knowledgeVersion` that is bumped whenever sources are added/removed or toggled. The server subscribes to changes and performs a soft-reset on conversation contexts (clearing cached lastKnowledgeSources) to avoid stale provenance.
+
+See `README.md` Storage badge and the Architecture doc for more details.
+
 ## 🎯 Use Case Examples
 
 ### Enterprise Setup

@@ -3,7 +3,7 @@
  * Provides employee data from dummy API with smart suggestions
  */
 
-import { KnowledgeSource } from '../knowledge-library';
+import { KnowledgeSource } from '../knowledge/library';
 
 // Fallback employee data when API is unavailable
 const getFallbackEmployeeData = (): string => {

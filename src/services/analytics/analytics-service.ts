@@ -1,4 +1,4 @@
-import { InteractionLog, AnalyticsData, PlatformType } from "../../core/types";
+import { InteractionLog, AnalyticsData, PlatformType } from "../../core/core-types";
 
 export class AnalyticsService {
   private static interactions: InteractionLog[] = [];

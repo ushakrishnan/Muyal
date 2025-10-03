@@ -46,41 +46,34 @@ export class A2ARegistry {
     this.agents.set(selfId, selfMetadata);
   }
 
-  // Register another agent
   registerAgent(agent: AgentMetadata): void {
     this.agents.set(agent.id, agent);
-    console.log(`🤝 Registered agent: ${agent.name} (${agent.id})`);
+    console.log(`\ud83e\udd1d Registered agent: ${agent.name} (${agent.id})`);
   }
 
-  // Unregister an agent
   unregisterAgent(agentId: string): void {
     this.agents.delete(agentId);
-    console.log(`👋 Unregistered agent: ${agentId}`);
+    console.log(`\ud83d\udc4b Unregistered agent: ${agentId}`);
   }
 
-  // Find agents by capability
   findAgentsByCapability(capability: string): AgentMetadata[] {
     return Array.from(this.agents.values()).filter(agent =>
       agent.capabilities.some(cap => cap.name === capability)
     );
   }
 
-  // Get all registered agents
   getAllAgents(): AgentMetadata[] {
     return Array.from(this.agents.values());
   }
 
-  // Get agent by ID
   getAgent(agentId: string): AgentMetadata | undefined {
     return this.agents.get(agentId);
   }
 
-  // Register a message handler for a capability
   registerHandler(capability: string, handler: (message: A2AMessage) => Promise<A2AResponse>): void {
     this.messageHandlers.set(capability, handler);
   }
 
-  // Handle incoming message
   async handleMessage(message: A2AMessage): Promise<A2AResponse> {
     if (!message.capability) {
       return { success: false, error: 'No capability specified' };
@@ -110,7 +103,6 @@ export class A2ACommunicator {
     this.registry = registry;
   }
 
-  // Send a request to another agent
   async sendRequest(
     targetAgentId: string,
     capability: string,
@@ -132,12 +124,9 @@ export class A2ACommunicator {
       timestamp: new Date(),
     };
 
-    // In a real implementation, this would send over network
-    // For now, we'll simulate local delivery
     return await this.deliverMessage(message, targetAgent);
   }
 
-  // Send a notification (fire and forget)
   async sendNotification(
     targetAgentId: string,
     capability: string,
@@ -162,7 +151,6 @@ export class A2ACommunicator {
     await this.deliverMessage(message, targetAgent);
   }
 
-  // Broadcast to all agents with a capability
   async broadcast(capability: string, payload: any): Promise<A2AResponse[]> {
     const targetAgents = this.registry.findAgentsByCapability(capability);
     const promises = targetAgents.map(agent =>
@@ -173,15 +161,11 @@ export class A2ACommunicator {
   }
 
   private async deliverMessage(message: A2AMessage, targetAgent: AgentMetadata): Promise<A2AResponse> {
-    // In a real implementation, this would use the agent's endpoints
-    // For local delivery, we use the registry
     if (message.to === this.registry['selfId']) {
       return await this.registry.handleMessage(message);
     }
 
-    // For external agents, we'd implement actual network communication
-    // This is a placeholder for HTTP/WebSocket/MCP delivery
-    console.log(`📤 Would deliver message to ${targetAgent.name}: ${message.capability}`);
+    console.log(`\ud83d\udce4 Would deliver message to ${targetAgent.name}: ${message.capability}`);
     return { success: true, data: 'Message would be delivered externally' };
   }
 }
@@ -189,23 +173,20 @@ export class A2ACommunicator {
 export class A2ACapabilityManager {
   private capabilities: Map<string, AgentCapability> = new Map();
 
-  // Register a capability
   registerCapability(capability: AgentCapability): void {
     this.capabilities.set(capability.name, capability);
   }
 
-  // Get all capabilities
   getCapabilities(): AgentCapability[] {
     return Array.from(this.capabilities.values());
   }
 
-  // Check if capability exists
   hasCapability(name: string): boolean {
     return this.capabilities.has(name);
   }
 
-  // Get capability by name
   getCapability(name: string): AgentCapability | undefined {
     return this.capabilities.get(name);
   }
 }
+// Legacy re-export removed during refactor. Canonical A2A implementations are above.

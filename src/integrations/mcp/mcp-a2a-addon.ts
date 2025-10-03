@@ -554,7 +554,11 @@ export async function startA2AServer() {
     
     // Enable A2A discovery mode
     const unifiedServer = integratedServer.getUnifiedServer();
-    await unifiedServer.startA2ADiscovery();
+    if (typeof (unifiedServer as any).startA2ADiscovery === 'function') {
+      await (unifiedServer as any).startA2ADiscovery();
+    } else {
+      console.log('A2A discovery not available on this UnifiedAgentServer build; skipping');
+    }
     
     console.log('✅ A2A server started successfully');
     console.log('🤖 Agent discovery and inter-agent communication active');
@@ -568,3 +572,4 @@ export async function startA2AServer() {
     process.exit(1);
   }
 }
+// Note: no top-level re-export — keep references to the single implementation in src/integrations/mcp/

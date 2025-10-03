@@ -142,6 +142,12 @@ npm run start:basic
 npm run test:mcp
 ```
 
+## Memory & Storage (MCP interactions)
+
+When Muyal handles MCP function calls (including `chat`), conversation state and message history are persisted using the configured memory provider. For local testing the filesystem store is used by default; in production you can select `MEMORY_PROVIDER=cosmos` to persist to Azure Cosmos DB.
+
+Short follow-ups from MCP clients may be treated as continuations — the server can reseed the enhancement process with the last assistant's knowledge source IDs so follow-ups remain coherent without expensive re-queries.
+
 ## 🔧 Function Categories: Different Response Types
 
 Your Muyal agent showcases **4 different types of functions** with **4 different response mechanisms**:

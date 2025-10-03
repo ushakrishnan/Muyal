@@ -3,7 +3,7 @@
  * Provides dog images and breed information from Dog CEO API
  */
 
-import { KnowledgeSource } from '../knowledge-library';
+import { KnowledgeSource } from '../knowledge/library';
 
 // Fallback dog data when API is unavailable
 const getFallbackDogData = (): string => {

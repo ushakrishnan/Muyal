@@ -1,8 +1,8 @@
-import { AIConfiguration } from "./ai-configuration";
-import { PlatformType, AIResponse, ConversationMessage, AIProcessingError } from "./types";
-import { ResponseFormatter } from "../services/formatting/response-formatter";
-import { SuggestionGenerator } from "../services/formatting/suggestion-generator";
-import { AIRequestMetrics } from "../services/observability/observability-service";
+import { AIConfiguration } from "../ai/configuration";
+import { PlatformType, AIResponse, ConversationMessage, AIProcessingError } from "../core-types";
+import { ResponseFormatter } from "../../services/formatting/response-formatter";
+import { SuggestionGenerator } from "../../services/formatting/suggestion-generator";
+import { AIRequestMetrics } from "../../services/observability/observability-service";
 
 export interface AIProcessorOptions {
   systemPrompt?: string;
@@ -19,9 +19,6 @@ export class AIProcessor {
     this.systemPrompt = "You are an AI agent that can chat with users.";
   }
 
-  /**
-   * Process a message using the appropriate AI provider for the platform
-   */
   async processMessage(
     platform: PlatformType,
     message: string, 
@@ -33,10 +30,7 @@ export class AIProcessor {
     let provider;
     
     try {
-      // Get the appropriate AI provider for this platform
       provider = AIConfiguration.getProviderForPlatform(platform);
-      
-      // Build context including history
       const context = {
         systemPrompt: options.systemPrompt || this.systemPrompt,
         history,
@@ -44,16 +38,9 @@ export class AIProcessor {
         maxTokens: options.maxTokens,
         model: options.model
       };
-      
-      // Generate response using the provider
       const response = await provider.generateResponse(message, context);
-      
       const processingTime = Date.now() - startTime;
-      
-      // Calculate cost estimate
       const cost = this.estimateCost(provider.name, response.metadata.tokens);
-      
-      // Log successful request to Weave for tracing
       const metrics: AIRequestMetrics = {
         conversationId: options.conversationId || 'unknown',
         platform,
@@ -66,8 +53,8 @@ export class AIProcessor {
         responseTime: processingTime,
         success: true,
         timestamp: new Date(),
-        prompt: message, // Include prompt for Weave tracing
-        response: response.content, // Include response for Weave tracing
+        prompt: message,
+        response: response.content,
         metadata: {
           ...response.metadata,
           messageLength: message.length,
@@ -100,9 +87,6 @@ export class AIProcessor {
     }
   }
 
-  /**
-   * Static method for simple message processing
-   */
   static async processMessage(
     platform: PlatformType,
     message: string,
@@ -113,17 +97,12 @@ export class AIProcessor {
     let provider;
     
     try {
-      // Get the appropriate AI provider for this platform
       provider = AIConfiguration.getProviderForPlatform(platform);
-      
-      // Generate response using the provider
       const response = await provider.generateResponse(message, {
         systemPrompt: options.systemPrompt,
         temperature: options.temperature,
         maxTokens: options.maxTokens
       });
-      
-      // Log successful request to Weave
       const processingTime = Date.now() - startTime;
       const metrics: AIRequestMetrics = {
         conversationId: options.conversationId || 'unknown',
@@ -136,8 +115,8 @@ export class AIProcessor {
         responseTime: processingTime,
         success: true,
         timestamp: new Date(),
-        prompt: message, // Include for Weave tracing
-        response: response.content, // Include for Weave tracing
+        prompt: message,
+        response: response.content,
         metadata: {
           ...response.metadata,
           messageLength: message.length,
@@ -149,9 +128,7 @@ export class AIProcessor {
       
       return response.content;
     } catch (error) {
-      // Log error to observability
       const processingTime = Date.now() - startTime;
-      
       const metrics: AIRequestMetrics = {
         conversationId: options.conversationId || 'unknown',
         platform,
@@ -160,8 +137,8 @@ export class AIProcessor {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date(),
-        prompt: message, // Include for Weave error tracing
-        response: undefined, // No response due to error
+        prompt: message,
+        response: undefined,
         metadata: {
           messageLength: message.length
         }
@@ -174,37 +151,24 @@ export class AIProcessor {
     }
   }
 
-  /**
-   * Estimate cost for AI request (approximate)
-   */
   private estimateCost(providerName: string, tokens?: number): number {
     if (!tokens) return 0;
-    
-    // Cost per 1K tokens (approximate, as of 2024)
     const costPer1K = {
       'openai': 0.03,
       'anthropic': 0.015,
       'azure-openai': 0.03,
       'google-ai': 0.0075,
-      'ollama': 0, // Local, no API costs
+      'ollama': 0,
       'azure-ai-foundry': 0.02
     };
-    
     const rate = costPer1K[providerName as keyof typeof costPer1K] || 0.02;
     return (tokens / 1000) * rate;
   }
   
-  /**
-   * Estimate prompt tokens (rough approximation)
-   */
   private estimatePromptTokens(text: string): number {
-    // Rough estimation: ~4 characters per token for English text
     return Math.ceil(text.length / 4);
   }
 
-  /**
-   * Get AI provider capabilities for a platform
-   */
   static getProviderCapabilities(platform: PlatformType): string[] {
     try {
       const provider = AIConfiguration.getProviderForPlatform(platform);
@@ -215,12 +179,9 @@ export class AIProcessor {
     }
   }
 
-  /**
-   * Check if a platform has AI provider configured
-   */
-  static hasProviderForPlatform(platform: PlatformType): boolean {
+  static hasProviderForPlatform(platform: string): boolean {
     try {
-      AIConfiguration.getProviderForPlatform(platform);
+      AIConfiguration.getProviderForPlatform(platform as any);
       return true;
     } catch {
       return false;
@@ -229,8 +190,6 @@ export class AIProcessor {
 
   private generateActions(response: string, userMessage: string) {
     const actions = [];
-    
-    // Generate actions based on content
     if (response.toLowerCase().includes('azure') || response.toLowerCase().includes('deployment')) {
       actions.push({
         type: 'link' as const,
@@ -238,7 +197,6 @@ export class AIProcessor {
         value: 'https://portal.azure.com'
       });
     }
-    
     if (response.toLowerCase().includes('documentation') || response.toLowerCase().includes('docs')) {
       actions.push({
         type: 'quick_reply' as const,
@@ -246,7 +204,6 @@ export class AIProcessor {
         value: 'Can you show me more detailed documentation?'
       });
     }
-    
     return actions;
   }
 
@@ -258,9 +215,6 @@ export class AIProcessor {
     return this.systemPrompt;
   }
 
-  /**
-   * Get health status of all AI providers
-   */
   async getHealthStatus(): Promise<any> {
     try {
       return await AIConfiguration.checkHealth();
@@ -272,9 +226,6 @@ export class AIProcessor {
     }
   }
 
-  /**
-   * Get available AI providers
-   */
   getAvailableProviders(): string[] {
     try {
       const config = AIConfiguration.getConfigurationSummary();
@@ -285,9 +236,6 @@ export class AIProcessor {
     }
   }
 
-  /**
-   * Get current AI configuration
-   */
   getConfiguration(): any {
     try {
       return AIConfiguration.getConfigurationSummary();
@@ -300,3 +248,4 @@ export class AIProcessor {
     }
   }
 }
+// Legacy re-export removed during refactor. The canonical AIProcessor implementation is defined above.
